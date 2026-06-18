@@ -1,0 +1,66 @@
+# Codemagic CI config for building BudgetMo's iOS app from a Windows machine
+# (no Mac required — Codemagic runs the build on a cloud Mac).
+#
+# Two workflows:
+#  1) ios-verify   — free, no Apple account. Confirms the iOS app COMPILES.
+#                    Produces an unsigned .app that CANNOT be installed on a
+#                    real iPhone (Apple requires code signing for that).
+#  2) ios-testflight — the real path onto your iPhone. Needs an Apple Developer
+#                    account ($99/yr) and signing set up in the Codemagic UI.
+
+workflows:
+  ios-verify:
+    name: BudgetMo iOS (verify build)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Pod install
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Build iOS (no code signing)
+        script: |
+          flutter build ios --release --no-codesign
+    artifacts:
+      - build/ios/iphoneos/*.app
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+
+  ios-testflight:
+    name: BudgetMo iOS (TestFlight)
+    instance_type: mac_mini_m2
+    max_build_duration: 90
+    integrations:
+      # Set this up in Codemagic UI: Teams > Integrations > App Store Connect
+      app_store_connect: CodemagicAppStoreKey
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        # Create these in the Codemagic UI under Code signing identities.
+        distribution_type: app_store
+        bundle_identifier: com.example.tracker   # <-- change to your real bundle id
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Set up signing
+        script: xcode-project use-profiles
+      - name: Pod install
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Build signed IPA
+        script: |
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
