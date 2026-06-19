@@ -1,4 +1,3 @@
-import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/expense_category.dart';
@@ -34,7 +33,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
-          backgroundColor: cSurface,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(22)),
           title: Text(isEdit ? 'Edit category' : 'New category',
@@ -133,7 +132,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               onPressed: () => Navigator.pop(ctx),
               child: Text('Cancel',
                   style: GoogleFonts.plusJakartaSans(
-                      color: cSubtext)),
+                      color: Colors.black45)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -181,7 +180,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               onPressed: () => Navigator.pop(context, false),
               child: Text('Cancel',
                   style: GoogleFonts.plusJakartaSans(
-                      color: cSubtext))),
+                      color: Colors.black45))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE74C3C),
@@ -205,19 +204,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cBg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: AppBar(
-        backgroundColor: cBg,
+        backgroundColor: const Color(0xFFF5F7F5),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
-              color: cInk),
+              color: const Color(0xFF1A2E1A)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Categories',
             style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w700,
-                color: cInk)),
+                color: const Color(0xFF1A2E1A))),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 8, 18, 100),
@@ -227,7 +226,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: cSurface,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -254,11 +253,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
-                          color: cInk)),
+                          color: const Color(0xFF1A2E1A))),
                 ),
                 IconButton(
                   icon: Icon(Icons.edit_rounded,
-                      size: 19, color: cSubtext),
+                      size: 19, color: Colors.black45),
                   onPressed: () => _editDialog(existing: cat),
                 ),
                 IconButton(

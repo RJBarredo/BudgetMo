@@ -5,13 +5,12 @@ import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
-import '../theme/app_theme.dart';
 
 class IntegrityScreen extends StatelessWidget {
   const IntegrityScreen({super.key});
 
-  static Color get ink => cInk;
-  static Color get green => cAccent;
+  static Color get ink => const Color(0xFF1A2E1A);
+  static Color get green => const Color(0xFF2ECC71);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +26,7 @@ class IntegrityScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppPalette.of(context).bg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: appHeader(context, 'Record & integrity'),
       body: phoneWrap(ListView(
         padding: const EdgeInsets.fromLTRB(18, 14, 18, 40),
@@ -36,7 +35,7 @@ class IntegrityScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: cSurface,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
@@ -68,7 +67,7 @@ class IntegrityScreen extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w700,
                         fontSize: 12.5,
-                        color: cSubtext)),
+                        color: Colors.black45)),
                 const SizedBox(height: 6),
                 Container(
                   width: double.infinity,
@@ -130,7 +129,7 @@ class IntegrityScreen extends StatelessWidget {
           if (expenses.isEmpty)
             Text('No expenses yet.',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext))
+                    color: Colors.black45))
           else
             ...expenses.map((e) => _entry(e, fmt)),
 
@@ -166,7 +165,7 @@ class IntegrityScreen extends StatelessWidget {
           children: [
             Text(label,
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13, color: cSubtext)),
+                    fontSize: 13, color: Colors.black45)),
             Flexible(
               child: Text(value,
                   textAlign: TextAlign.right,
@@ -183,7 +182,7 @@ class IntegrityScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: cSurface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6)
@@ -208,7 +207,7 @@ class IntegrityScreen extends StatelessWidget {
                 fontSize: 11.5,
                 color: e.wasEdited
                     ? const Color(0xFFE67E22)
-                    : cSubtext),
+                    : Colors.black45),
           ),
           trailing: Text('₱${e.amount.toStringAsFixed(2)}',
               style: GoogleFonts.plusJakartaSans(
@@ -220,7 +219,7 @@ class IntegrityScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 3),
                       child: Text('• ${_pretty(h)}',
                           style: GoogleFonts.robotoMono(
-                              fontSize: 11, color: cSubtext)),
+                              fontSize: 11, color: Colors.black45)),
                     ),
                   ))
               .toList(),

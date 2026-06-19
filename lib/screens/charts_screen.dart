@@ -5,7 +5,6 @@ import '../services/storage_service.dart';
 import '../models/expense.dart';
 import '../widgets/animations.dart';
 import '../widgets/app_header.dart';
-import '../theme/app_theme.dart';
 
 class ChartsScreen extends StatefulWidget {
   const ChartsScreen({super.key});
@@ -55,7 +54,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
     final hasData = _allExpenses.isNotEmpty || income > 0;
 
     return Scaffold(
-      backgroundColor: AppPalette.of(context).bg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: appHeader(context, 'Charts'),
       body: phoneWrap(!hasData
           ? Center(
@@ -66,7 +65,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
             const SizedBox(height: 12),
             Text('No data yet — add some expenses first!',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext, fontSize: 14)),
+                    color: Colors.black45, fontSize: 14)),
           ],
         ),
       )
@@ -143,7 +142,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: active ? cInk : Colors.transparent,
+            color: active ? const Color(0xFF1A2E1A) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
@@ -152,7 +151,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
             style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.w700,
               fontSize: 13,
-              color: active ? Colors.white : cSubtext,
+              color: active ? Colors.white : Colors.black45,
             ),
           ),
         ),
@@ -167,7 +166,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [cGrad1, cGrad2],
+          colors: [const Color(0xFF12280F), const Color(0xFF2D5A2D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -265,7 +264,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: cInk)),
+                  color: const Color(0xFF1A2E1A))),
         ),
         Expanded(
           child: LayoutBuilder(builder: (context, c) {
@@ -306,7 +305,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
             style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: cInk),
+                color: const Color(0xFF1A2E1A)),
           ),
         ),
       ],
@@ -318,7 +317,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
         style: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.w700,
             fontSize: 15,
-            color: cInk));
+            color: const Color(0xFF1A2E1A)));
   }
 
   Widget _buildPieCard(Map<String, double> byCategory) {
@@ -399,7 +398,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   const SizedBox(width: 5),
                   Text(entry.key,
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12, color: cSubtext)),
+                          fontSize: 12, color: Colors.black45)),
                 ],
               );
             }).toList(),
@@ -464,7 +463,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(keys[idx],
                           style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11, color: cSubtext)),
+                              fontSize: 11, color: Colors.black45)),
                     );
                   },
                 ),
@@ -531,7 +530,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                       style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
-                          color: cInk)),
+                          color: const Color(0xFF1A2E1A))),
                   Text('₱${entry.value.toStringAsFixed(2)}',
                       style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
@@ -553,7 +552,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
               Text(
                   '${(pct * 100).toStringAsFixed(1)}% of total spending',
                   style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11, color: cSubtext)),
+                      fontSize: 11, color: Colors.black45)),
             ],
           ),
         );

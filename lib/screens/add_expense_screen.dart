@@ -1,4 +1,3 @@
-import '../theme/app_theme.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -66,7 +65,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   void _receiptSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: cSurface,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => SafeArea(
@@ -139,7 +138,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
-                color: cInk)),
+                color: const Color(0xFF1A2E1A))),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -163,7 +162,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               child: OutlinedButton.icon(
                 onPressed: _receiptSheet,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: cInk,
+                  foregroundColor: const Color(0xFF1A2E1A),
                   side: const BorderSide(color: Color(0xFFD9E2DC)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -246,20 +245,20 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cBg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: AppBar(
-        backgroundColor: cBg,
+        backgroundColor: const Color(0xFFF5F7F5),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
-              color: cInk),
+              color: const Color(0xFF1A2E1A)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           _isEditing ? 'Edit Expense' : 'Add Expense',
           style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.w700,
-              color: cInk),
+              color: const Color(0xFF1A2E1A)),
         ),
       ),
       body: SingleChildScrollView(
@@ -316,7 +315,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: cInk)),
+              color: const Color(0xFF1A2E1A))),
     );
   }
 
@@ -396,7 +395,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: selected
-                  ? cInk
+                  ? const Color(0xFF1A2E1A)
                   : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
@@ -412,7 +411,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 fontWeight: FontWeight.w600,
                 color: selected
                     ? Colors.white
-                    : cInk,
+                    : const Color(0xFF1A2E1A),
               ),
             ),
           ),

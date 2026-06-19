@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/expense.dart';
-import '../theme/app_theme.dart';
 
 class ExpenseCard extends StatelessWidget {
   final Expense expense;
@@ -32,7 +31,6 @@ class ExpenseCard extends StatelessWidget {
     final color = cat['color'] as Color;
     final icon = cat['icon'] as String;
     final timeStr = DateFormat('h:mm a').format(expense.date);
-    final p = AppPalette.of(context);
 
     return Dismissible(
       key: Key(expense.date.toString() + expense.title + expense.amount.toString()),
@@ -65,7 +63,7 @@ class ExpenseCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: p.surface,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -101,7 +99,7 @@ class ExpenseCard extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
-                        color: p.ink),
+                        color: const Color(0xFF1A2E1A)),
                   ),
                   const SizedBox(height: 3),
                   Row(

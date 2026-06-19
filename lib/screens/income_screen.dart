@@ -1,4 +1,3 @@
-import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -56,7 +55,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: Text('Cancel',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext)),
+                    color: Colors.black45)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -105,19 +104,19 @@ class _IncomeScreenState extends State<IncomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: cBg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: AppBar(
-        backgroundColor: cBg,
+        backgroundColor: const Color(0xFFF5F7F5),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
-              color: cInk),
+              color: const Color(0xFF1A2E1A)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Income',
             style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w700,
-                color: cInk)),
+                color: const Color(0xFF1A2E1A))),
       ),
       body: Column(
         children: [
@@ -137,7 +136,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                               style: GoogleFonts.plusJakartaSans(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
-                                  color: cSubtext)),
+                                  color: Colors.black45)),
                         ),
                         ...entry.value
                             .map((income) => _incomeCard(income)),
@@ -167,7 +166,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [cGrad1, cGrad2],
+          colors: [const Color(0xFF12280F), const Color(0xFF2D5A2D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -242,7 +241,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
           padding: const EdgeInsets.symmetric(
               horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: cSurface,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -274,14 +273,14 @@ class _IncomeScreenState extends State<IncomeScreen> {
                         style: GoogleFonts.plusJakartaSans(
                             fontWeight: FontWeight.w700,
                             fontSize: 15,
-                            color: cInk)),
+                            color: const Color(0xFF1A2E1A))),
                     if (income.note.isNotEmpty)
                       Text(income.note,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
-                              color: cSubtext)),
+                              color: Colors.black45)),
                   ],
                 ),
               ),
@@ -308,7 +307,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: cSubtext)),
+                  color: Colors.black45)),
           const SizedBox(height: 6),
           Text('Log your allowance or salary to track net cash flow',
               textAlign: TextAlign.center,

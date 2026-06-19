@@ -1,4 +1,3 @@
-import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -132,20 +131,20 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cBg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: AppBar(
-        backgroundColor: cBg,
+        backgroundColor: const Color(0xFFF5F7F5),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
-              color: cInk),
+              color: const Color(0xFF1A2E1A)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           _isEditing ? 'Edit Income' : 'Add Income',
           style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.w700,
-              color: cInk),
+              color: const Color(0xFF1A2E1A)),
         ),
       ),
       body: SingleChildScrollView(
@@ -202,7 +201,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
           style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: cInk)),
+              color: const Color(0xFF1A2E1A))),
     );
   }
 
@@ -210,7 +209,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
       {bool isNumber = false}) {
     return Container(
       decoration: BoxDecoration(
-        color: cSurface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -241,7 +240,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
         padding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: cSurface,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -277,7 +276,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                 horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: selected
-                  ? cInk
+                  ? const Color(0xFF1A2E1A)
                   : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
@@ -293,7 +292,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                 fontWeight: FontWeight.w600,
                 color: selected
                     ? Colors.white
-                    : cInk,
+                    : const Color(0xFF1A2E1A),
               ),
             ),
           ),

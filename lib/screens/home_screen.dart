@@ -12,9 +12,8 @@ import 'charts_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/animations.dart';
 import '../widgets/mascot_advisor.dart';
-import '../widgets/ui_kit.dart';
-import '../theme/app_theme.dart';
 import '../widgets/user_avatar.dart';
+import '../widgets/budget_ring.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,11 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
       const SavingsScreen(),
     ];
     return Scaffold(
-      backgroundColor: cBg,
+      backgroundColor: const Color(0xFFF5F7F5),
       body: screens[_currentIndex],
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
-              backgroundColor: cAccent,
+              backgroundColor: const Color(0xFF2ECC71),
               foregroundColor: Colors.white,
               elevation: 3,
               onPressed: () async {
@@ -56,10 +55,10 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
-        selectedItemColor: cAccent,
-        unselectedItemColor: cSubtext,
+        selectedItemColor: const Color(0xFF2ECC71),
+        unselectedItemColor: Colors.black45,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: cSurface,
+        backgroundColor: Colors.white,
         elevation: 12,
         selectedLabelStyle: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.w700, fontSize: 11),
@@ -101,7 +100,6 @@ class _HomeTabState extends State<_HomeTab> {
   String _userName = 'there';
   String _userAvatar = UserAvatars.defaultId;
   List<double> _weekDaily = [];
-  Map<String, double> _catSpend = {};
 
   @override
   void initState() {
@@ -119,7 +117,7 @@ class _HomeTabState extends State<_HomeTab> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: cSurface,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24)),
         content: Column(
@@ -131,13 +129,13 @@ class _HomeTabState extends State<_HomeTab> {
                 style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
-                    color: cInk)),
+                    color: const Color(0xFF1A2E1A))),
             const SizedBox(height: 8),
             Text(
               "You haven't logged any spending today. Want to add it now so I can keep your week accurate?",
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13.5, height: 1.4, color: cSubtext),
+                  fontSize: 13.5, height: 1.4, color: Colors.black45),
             ),
           ],
         ),
@@ -147,11 +145,11 @@ class _HomeTabState extends State<_HomeTab> {
             onPressed: () => Navigator.pop(context),
             child: Text('Later',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext, fontWeight: FontWeight.w600)),
+                    color: Colors.black45, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: cAccent,
+                backgroundColor: const Color(0xFF2ECC71),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12))),
@@ -182,7 +180,6 @@ class _HomeTabState extends State<_HomeTab> {
       _recap = StorageService.getPendingRecap();
       _recent = StorageService.getExpenses().take(4).toList();
       _savings = StorageService.getSavingsGoal();
-      _catSpend = StorageService.getWeeklyCategorySpending();
       final now = DateTime.now();
       final monday = DateTime(now.year, now.month, now.day)
           .subtract(Duration(days: now.weekday - 1));
@@ -235,6 +232,22 @@ class _HomeTabState extends State<_HomeTab> {
     }
   }
 
+  void _addQuick(String title, double amount, String category) async {
+    await StorageService.addExpense(Expense(
+        title: title,
+        amount: amount,
+        category: category,
+        date: DateTime.now()));
+    _load();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Added $title · ₱${amount.toStringAsFixed(0)}'),
+        backgroundColor: const Color(0xFF2ECC71),
+        duration: const Duration(milliseconds: 1200),
+      ));
+    }
+  }
+
   void _claimRecap() async {
     final moved = await StorageService.claimRecapToSavings();
     if (mounted) {
@@ -243,7 +256,7 @@ class _HomeTabState extends State<_HomeTab> {
           content: Text(moved > 0
               ? '₱${moved.toStringAsFixed(0)} moved to savings 🎉'
               : 'All set for the new week!'),
-          backgroundColor: cAccent,
+          backgroundColor: const Color(0xFF2ECC71),
         ),
       );
     }
@@ -264,79 +277,413 @@ class _HomeTabState extends State<_HomeTab> {
     final topPad = MediaQuery.of(context).padding.top;
 
     return RefreshIndicator(
-      color: cAccent,
+      color: const Color(0xFF2ECC71),
       onRefresh: () async => _load(),
       child: ListView(
-        padding: EdgeInsets.fromLTRB(18, topPad + 14, 18, 120),
+        padding: EdgeInsets.zero,
         children: [
-          _greetingRow(),
-          const SizedBox(height: 18),
-          _pisoTipCard(),
-          const SizedBox(height: 16),
-          _netCard(weekRemaining, over, weekProgress),
-          if (_recap != null) ...[
-            const SizedBox(height: 16),
-            _recapCard(),
-          ],
-          const SizedBox(height: 24),
-          _sectionLabel('Your money'),
-          const SizedBox(height: 12),
-          _moneyCards(weekProgress),
-          if (_catSpend.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          _greenHero(topPad, weekRemaining, over, weekProgress),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 0, 18, 120),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _sectionLabel('By category'),
-                GestureDetector(
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const ChartsScreen())),
-                  child: Row(children: [
-                    Text('See all',
-                        style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13,
-                            color: cAccent,
-                            fontWeight: FontWeight.w700)),
-                    Icon(Icons.chevron_right_rounded, size: 18, color: cAccent),
-                  ]),
+                const SizedBox(height: 18),
+                _pisoTipCard(),
+                const SizedBox(height: 16),
+                _flowCard(over),
+                if (_recap != null) ...[
+                  const SizedBox(height: 16),
+                  _recapCard(),
+                ],
+                const SizedBox(height: 24),
+                _quickLogSection(),
+                const SizedBox(height: 24),
+                _sectionLabel('Your money'),
+                const SizedBox(height: 12),
+                _moneyCards(weekProgress),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _sectionLabel('Recent'),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ExpensesScreen())),
+                      child: Row(
+                        children: [
+                          Text('See all',
+                              style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  color: const Color(0xFF2ECC71),
+                                  fontWeight: FontWeight.w700)),
+                          Icon(Icons.chevron_right_rounded,
+                              size: 18, color: const Color(0xFF2ECC71)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 12),
+                if (_recent.isEmpty)
+                  _emptyState()
+                else
+                  ..._recent.map((e) => ExpenseCard(expense: e)),
               ],
             ),
-            const SizedBox(height: 12),
-            _categoryBreakdown(),
-          ],
-          const SizedBox(height: 24),
-          _searchBar(),
-          const SizedBox(height: 24),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── GREEN HERO ────────────────────────────────────────────
+  Widget _greenHero(
+      double topPad, double remaining, bool over, double progress) {
+    final daysLeft = (8 - DateTime.now().weekday).clamp(1, 7);
+    final safeToday = remaining > 0 ? remaining / daysLeft : 0.0;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(20, topPad + 16, 20, 26),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF12280F), Color(0xFF2D5A2D)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+      ),
+      child: Column(
+        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _sectionLabel('Recent'),
-              GestureDetector(
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const ExpensesScreen())),
-                child: Row(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('See all',
+                    Text(_getGreeting(),
                         style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13,
-                            color: cAccent,
-                            fontWeight: FontWeight.w700)),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 18, color: cAccent),
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            height: 1.1)),
+                    const SizedBox(height: 2),
+                    Text(_userName,
+                        style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withOpacity(0.75))),
+                    Text(DateFormat('EEEE, MMM d').format(DateTime.now()),
+                        style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.5,
+                            color: Colors.white.withOpacity(0.55))),
                   ],
                 ),
               ),
+              GestureDetector(
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      shape: BoxShape.circle),
+                  child: const Icon(Icons.settings_rounded,
+                      color: Colors.white, size: 22),
+                ),
+              ),
+              GestureDetector(
+                  onTap: _changeAvatar,
+                  child: UserAvatar(id: _userAvatar, size: 46)),
             ],
           ),
-          const SizedBox(height: 12),
-          if (_recent.isEmpty)
-            _emptyState()
-          else
-            ..._recent.map((e) => ExpenseCard(expense: e)),
+          const SizedBox(height: 18),
+          BudgetRing(
+            percent: progress,
+            size: 210,
+            stroke: 16,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('LEFT THIS WEEK',
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                        color: Colors.white.withOpacity(0.6))),
+                const SizedBox(height: 4),
+                Text('₱${remaining.toStringAsFixed(0)}',
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.0)),
+                const SizedBox(height: 4),
+                Text('of ₱${_weeklyBudget.toStringAsFixed(0)}',
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.55))),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(_getWeekRange(),
+              style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5, color: Colors.white.withOpacity(0.55))),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                  child: _heroStat(
+                      'Safe today', '₱${safeToday.toStringAsFixed(0)}')),
+              _heroDivider(),
+              Expanded(
+                  child: _heroStat(
+                      'Spent', '₱${_spentWeek.toStringAsFixed(0)}')),
+              _heroDivider(),
+              Expanded(child: _heroStat('Days left', '$daysLeft')),
+            ],
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _heroStat(String label, String value) {
+    return Column(
+      children: [
+        Text(value,
+            style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Colors.white)),
+        const SizedBox(height: 2),
+        Text(label,
+            style: GoogleFonts.plusJakartaSans(
+                fontSize: 12, color: Colors.white.withOpacity(0.55))),
+      ],
+    );
+  }
+
+  Widget _heroDivider() =>
+      Container(width: 1, height: 32, color: Colors.white.withOpacity(0.18));
+
+  // ── FLOW CARD (sparkline + income/spent) ──────────────────
+  Widget _flowCard(bool over) {
+    final pts = <double>[];
+    double run = _weeklyBudget;
+    final todayIdx = DateTime.now().weekday;
+    for (var i = 0; i < todayIdx && i < _weekDaily.length; i++) {
+      run -= _weekDaily[i];
+      pts.add(run);
+    }
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('This week',
+              style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF1A2E1A))),
+          const SizedBox(height: 12),
+          if (pts.length >= 2)
+            SizedBox(
+              height: 48,
+              child: IgnorePointer(
+                child: CustomPaint(
+                  size: const Size(double.infinity, 48),
+                  painter: _SparkPainter(
+                      pts,
+                      over
+                          ? const Color(0xFFE74C3C)
+                          : const Color(0xFF2ECC71)),
+                ),
+              ),
+            )
+          else
+            Stack(
+              children: [
+                Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                        color: const Color(0xFF1A2E1A).withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(8))),
+                FractionallySizedBox(
+                  widthFactor: _weeklyBudget > 0
+                      ? (_spentWeek / _weeklyBudget).clamp(0.02, 1.0)
+                      : 0.02,
+                  child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                          color: over
+                              ? const Color(0xFFE74C3C)
+                              : const Color(0xFF2ECC71),
+                          borderRadius: BorderRadius.circular(8))),
+                ),
+              ],
+            ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _flowPill('Income', _incomeWeek, Icons.south_west_rounded,
+                  const Color(0xFF2ECC71)),
+              const SizedBox(width: 10),
+              _flowPill('Spent', _spentWeek, Icons.north_east_rounded,
+                  const Color(0xFFE74C3C)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _flowPill(String label, double value, IconData icon, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+            color: color.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 4),
+              Text(label,
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12, fontWeight: FontWeight.w600, color: color)),
+            ]),
+            const SizedBox(height: 4),
+            Text('₱${value.toStringAsFixed(0)}',
+                style: GoogleFonts.plusJakartaSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: color)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── QUICK LOG ─────────────────────────────────────────────
+  Widget _quickLogSection() {
+    final items = <Map<String, dynamic>>[
+      {
+        'title': 'Jeep Fare',
+        'amount': 14.0,
+        'cat': 'Transport',
+        'icon': Icons.directions_bus_filled_rounded,
+        'color': const Color(0xFF3498DB),
+      },
+      {
+        'title': 'Lunch',
+        'amount': 65.0,
+        'cat': 'Food',
+        'icon': Icons.lunch_dining_rounded,
+        'color': const Color(0xFF2ECC71),
+      },
+      {
+        'title': 'Snack',
+        'amount': 25.0,
+        'cat': 'Food',
+        'icon': Icons.cookie_rounded,
+        'color': const Color(0xFFF39C12),
+      },
+      {
+        'title': 'Bus Fare',
+        'amount': 30.0,
+        'cat': 'Transport',
+        'icon': Icons.train_rounded,
+        'color': const Color(0xFF9B59B6),
+      },
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.bolt_rounded,
+                color: Color(0xFFF39C12), size: 20),
+            const SizedBox(width: 4),
+            _sectionLabel('Quick Log'),
+            const SizedBox(width: 8),
+            Text('tap to add instantly',
+                style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5, color: Colors.black38)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 118,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: items.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (_, i) {
+              final it = items[i];
+              final color = it['color'] as Color;
+              return GestureDetector(
+                onTap: () => _addQuick(it['title'] as String,
+                    it['amount'] as double, it['cat'] as String),
+                child: Container(
+                  width: 96,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border(top: BorderSide(color: color, width: 3)),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 8)
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                            color: color.withOpacity(0.14),
+                            borderRadius: BorderRadius.circular(11)),
+                        child: Icon(it['icon'] as IconData,
+                            color: color, size: 20),
+                      ),
+                      Text(it['title'] as String,
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF1A2E1A))),
+                      Text('₱${(it['amount'] as double).toStringAsFixed(0)}',
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                              color: color)),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -353,17 +700,17 @@ class _HomeTabState extends State<_HomeTab> {
                   style: GoogleFonts.plusJakartaSans(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: cInk,
+                      color: const Color(0xFF1A2E1A),
                       height: 1.1)),
               const SizedBox(height: 2),
               Text(_userName,
                   style: GoogleFonts.plusJakartaSans(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
-                      color: cSubtext)),
+                      color: Colors.black45)),
               Text(DateFormat('EEEE, MMM d').format(DateTime.now()),
                   style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12.5, color: cSubtext)),
+                      fontSize: 12.5, color: Colors.black45)),
             ],
           ),
         ),
@@ -378,14 +725,14 @@ class _HomeTabState extends State<_HomeTab> {
                 height: 42,
                 margin: const EdgeInsets.only(right: 10),
                 decoration: BoxDecoration(
-                    color: cSurface,
+                    color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                           color: Colors.black.withOpacity(0.05),
                           blurRadius: 6)
                     ]),
-                child: Icon(Icons.settings_rounded, color: cSubtext, size: 22),
+                child: Icon(Icons.settings_rounded, color: Colors.black45, size: 22),
               ),
             ),
             UserAvatar(id: _userAvatar, size: 46),
@@ -413,14 +760,14 @@ class _HomeTabState extends State<_HomeTab> {
                       style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
-                          color: cInk)),
+                          color: const Color(0xFF1A2E1A))),
                   const SizedBox(width: 6),
-                  Icon(Icons.eco_rounded, size: 15, color: cAccent),
+                  Icon(Icons.eco_rounded, size: 15, color: const Color(0xFF2ECC71)),
                 ]),
                 const SizedBox(height: 3),
                 Text(_pisoTip(),
                     style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12.5, height: 1.35, color: cSubtext)),
+                        fontSize: 12.5, height: 1.35, color: Colors.black45)),
               ],
             ),
           ),
@@ -444,10 +791,10 @@ class _HomeTabState extends State<_HomeTab> {
                   style: GoogleFonts.plusJakartaSans(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w700,
-                      color: cInk)),
+                      color: const Color(0xFF1A2E1A))),
               Text(_getWeekRange(),
                   style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11.5, color: cSubtext)),
+                      fontSize: 11.5, color: Colors.black45)),
             ],
           ),
           const SizedBox(height: 10),
@@ -459,44 +806,28 @@ class _HomeTabState extends State<_HomeTab> {
                 fontSize: 38,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -1.2,
-                color: over ? const Color(0xFFE74C3C) : cInk),
+                color: over ? const Color(0xFFE74C3C) : const Color(0xFF1A2E1A)),
           ),
-          const SizedBox(height: 12),
-          Builder(builder: (_) {
-            final pts = <double>[];
-            double run = _weeklyBudget;
-            final todayIdx = DateTime.now().weekday;
-            for (var i = 0; i < todayIdx && i < _weekDaily.length; i++) {
-              run -= _weekDaily[i];
-              pts.add(run);
-            }
-            if (pts.length >= 2) {
-              return Sparkline(
-                points: pts,
-                color: over ? const Color(0xFFE74C3C) : cAccent,
-                height: 46,
-              );
-            }
-            return Stack(
-              children: [
-                Container(
+          const SizedBox(height: 14),
+          Stack(
+            children: [
+              Container(
+                height: 8,
+                decoration: BoxDecoration(
+                    color: const Color(0xFF1A2E1A).withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              FractionallySizedBox(
+                widthFactor: progress == 0 ? 0.02 : progress,
+                child: Container(
                   height: 8,
                   decoration: BoxDecoration(
-                      color: cInk.withOpacity(0.06),
+                      color: over ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71),
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                FractionallySizedBox(
-                  widthFactor: progress == 0 ? 0.02 : progress,
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                        color: over ? const Color(0xFFE74C3C) : cAccent,
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                ),
-              ],
-            );
-          }),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -552,85 +883,12 @@ class _HomeTabState extends State<_HomeTab> {
   }
 
   // ── SECTION LABEL ─────────────────────────────────────────
-  Widget _categoryBreakdown() {
-    final entries = _catSpend.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final top = entries.take(4).toList();
-    final maxVal = top.isEmpty ? 1.0 : top.first.value;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: _softCard(),
-      child: Column(
-        children: [
-          for (var i = 0; i < top.length; i++)
-            _catRow(top[i].key, top[i].value, maxVal, i == top.length - 1),
-        ],
-      ),
-    );
-  }
-
-  Widget _catRow(String cat, double amount, double maxVal, bool last) {
-    final data = ExpenseCard.categoryData[cat] ??
-        ExpenseCard.categoryData['Other'] ??
-        const {'icon': '📦', 'color': Color(0xFF95A5A6)};
-    final color = data['color'] as Color;
-    final icon = data['icon'] as String;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      decoration: BoxDecoration(
-        border: last
-            ? null
-            : Border(bottom: BorderSide(color: cInk.withOpacity(0.06))),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-                color: color.withOpacity(0.14),
-                borderRadius: BorderRadius.circular(11)),
-            child: Center(
-                child: Text(icon, style: const TextStyle(fontSize: 19))),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(cat,
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: cInk)),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    value: (amount / maxVal).clamp(0.05, 1.0),
-                    minHeight: 5,
-                    backgroundColor: cInk.withOpacity(0.06),
-                    valueColor: AlwaysStoppedAnimation(color),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text('₱${amount.toStringAsFixed(0)}',
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13.5, fontWeight: FontWeight.w800, color: cInk)),
-        ],
-      ),
-    );
-  }
-
   Widget _sectionLabel(String text) {
     return Text(text,
         style: GoogleFonts.plusJakartaSans(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: cInk));
+            color: const Color(0xFF1A2E1A)));
   }
 
   // ── MONEY CARDS (budget + savings) ────────────────────────
@@ -643,7 +901,7 @@ class _HomeTabState extends State<_HomeTab> {
       children: [
         Expanded(
           child: _miniCard(
-            ring: _ringStat(weekProgress, cAccent),
+            ring: _ringStat(weekProgress, const Color(0xFF2ECC71)),
             title: 'Budget',
             value: '₱${_spentWeek.toStringAsFixed(0)}',
             sub: 'of ₱${_weeklyBudget.toStringAsFixed(0)}',
@@ -686,7 +944,7 @@ class _HomeTabState extends State<_HomeTab> {
               children: [
                 ring,
                 Icon(Icons.chevron_right_rounded,
-                    size: 18, color: cSubtext),
+                    size: 18, color: Colors.black45),
               ],
             ),
             const SizedBox(height: 12),
@@ -694,16 +952,16 @@ class _HomeTabState extends State<_HomeTab> {
                 style: GoogleFonts.plusJakartaSans(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
-                    color: cSubtext)),
+                    color: Colors.black45)),
             const SizedBox(height: 2),
             Text(value,
                 style: GoogleFonts.plusJakartaSans(
                     fontSize: 19,
                     fontWeight: FontWeight.w800,
-                    color: cInk)),
+                    color: const Color(0xFF1A2E1A))),
             Text(sub,
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11.5, color: cSubtext)),
+                    fontSize: 11.5, color: Colors.black45)),
           ],
         ),
       ),
@@ -731,7 +989,7 @@ class _HomeTabState extends State<_HomeTab> {
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: cInk)),
+                  color: const Color(0xFF1A2E1A))),
         ],
       ),
     );
@@ -747,18 +1005,18 @@ class _HomeTabState extends State<_HomeTab> {
         decoration: _softCard(),
         child: Row(
           children: [
-            Icon(Icons.search_rounded, color: cSubtext, size: 20),
+            Icon(Icons.search_rounded, color: Colors.black45, size: 20),
             const SizedBox(width: 10),
             Text('Search transactions',
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14, color: cSubtext)),
+                    fontSize: 14, color: Colors.black45)),
             const Spacer(),
             Container(
               padding: const EdgeInsets.all(7),
               decoration: BoxDecoration(
-                  color: cAccent.withOpacity(0.12),
+                  color: const Color(0xFF2ECC71).withOpacity(0.12),
                   borderRadius: BorderRadius.circular(10)),
-              child: Icon(Icons.tune_rounded, color: cAccent, size: 18),
+              child: Icon(Icons.tune_rounded, color: const Color(0xFF2ECC71), size: 18),
             ),
           ],
         ),
@@ -776,7 +1034,7 @@ class _HomeTabState extends State<_HomeTab> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [cGrad1, cGrad2],
+          colors: [const Color(0xFF12280F), const Color(0xFF2D5A2D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -835,7 +1093,7 @@ class _HomeTabState extends State<_HomeTab> {
                         borderRadius: BorderRadius.circular(12)),
                     child: Text('Move to savings',
                         style: GoogleFonts.plusJakartaSans(
-                            color: cInk,
+                            color: const Color(0xFF1A2E1A),
                             fontWeight: FontWeight.w800,
                             fontSize: 14)),
                   ),
@@ -861,19 +1119,19 @@ class _HomeTabState extends State<_HomeTab> {
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
-                  color: cInk)),
+                  color: const Color(0xFF1A2E1A))),
           const SizedBox(height: 6),
           Text('Tap the + button to log your first one.',
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13, color: cSubtext)),
+                  fontSize: 13, color: Colors.black45)),
         ],
       ),
     );
   }
 
   BoxDecoration _softCard() => BoxDecoration(
-        color: cSurface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -882,4 +1140,63 @@ class _HomeTabState extends State<_HomeTab> {
               offset: const Offset(0, 3)),
         ],
       );
+}
+
+class _SparkPainter extends CustomPainter {
+  final List<double> points;
+  final Color color;
+  _SparkPainter(this.points, this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (points.length < 2) return;
+    final lo = points.reduce((a, b) => a < b ? a : b);
+    final hi = points.reduce((a, b) => a > b ? a : b);
+    final range = (hi - lo).abs() < 0.0001 ? 1.0 : (hi - lo);
+    final dx = size.width / (points.length - 1);
+
+    Offset at(int i) {
+      final norm = (points[i] - lo) / range;
+      return Offset(dx * i, size.height - (norm * (size.height - 6)) - 3);
+    }
+
+    final path = Path()..moveTo(at(0).dx, at(0).dy);
+    for (var i = 1; i < points.length; i++) {
+      final p0 = at(i - 1);
+      final p1 = at(i);
+      final mx = (p0.dx + p1.dx) / 2;
+      path.cubicTo(mx, p0.dy, mx, p1.dy, p1.dx, p1.dy);
+    }
+
+    final fill = Path.from(path)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(
+        fill,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [color.withOpacity(0.18), color.withOpacity(0.0)],
+          ).createShader(Offset.zero & size));
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.6
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+
+    final last = at(points.length - 1);
+    canvas.drawCircle(last, 3.2, Paint()..color = color);
+    canvas.drawCircle(last, 5.5, Paint()..color = color.withOpacity(0.18));
+  }
+
+  @override
+  bool shouldRepaint(_SparkPainter old) =>
+      old.points != points || old.color != color;
 }

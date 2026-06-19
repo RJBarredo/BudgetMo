@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/storage_service.dart';
@@ -281,10 +280,8 @@ class _CoinMascotState extends State<CoinMascot>
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2800));
-    // Web debug trips a mouse-tracker assertion when anything animates every
-    // frame during hover. Piso bobs/blinks on mobile; stays still on web.
-    if (!kIsWeb) _c.repeat();
+        vsync: this, duration: const Duration(milliseconds: 2800))
+      ..repeat();
   }
 
   @override
@@ -303,13 +300,9 @@ class _CoinMascotState extends State<CoinMascot>
         final blink = t > 0.90 && t < 0.955;
         return Transform.translate(
           offset: Offset(0, bob),
-          child: IgnorePointer(
-            child: RepaintBoundary(
-              child: CustomPaint(
-                size: Size(widget.size, widget.size),
-                painter: _CoinPainter(mood: widget.mood, blink: blink),
-              ),
-            ),
+          child: CustomPaint(
+            size: Size(widget.size, widget.size),
+            painter: _CoinPainter(mood: widget.mood, blink: blink),
           ),
         );
       },
@@ -326,102 +319,53 @@ class _CoinPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final c = Offset(size.width / 2, size.height / 2);
     final r = size.width / 2;
-    const ink = Color(0xFF4A3500);
-    const limbColor = Color(0xFFEFA81C);
-    final bodyR = r * 0.72;
-    final raised = mood == MascotMood.happy || mood == MascotMood.celebrate;
+    const ink = Color(0xFF3B2B00);
 
     // ground shadow
     canvas.drawOval(
       Rect.fromCenter(
-          center: Offset(c.dx, size.height - r * 0.05),
-          width: bodyR * 1.7,
-          height: r * 0.30),
+          center: Offset(c.dx, size.height - r * 0.06),
+          width: r * 1.3,
+          height: r * 0.34),
       Paint()..color = Colors.black.withOpacity(0.08),
     );
 
-    // ── limbs (behind body) ──
-    final limb = Paint()
-      ..color = limbColor
-      ..strokeWidth = r * 0.13
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    // feet
-    canvas.drawLine(Offset(c.dx - bodyR * 0.45, c.dy + bodyR * 0.86),
-        Offset(c.dx - bodyR * 0.45, c.dy + bodyR * 1.12), limb);
-    canvas.drawLine(Offset(c.dx + bodyR * 0.45, c.dy + bodyR * 0.86),
-        Offset(c.dx + bodyR * 0.45, c.dy + bodyR * 1.12), limb);
-    // arms
-    if (raised) {
-      canvas.drawLine(Offset(c.dx - bodyR * 0.8, c.dy),
-          Offset(c.dx - bodyR * 1.15, c.dy - bodyR * 0.55), limb);
-      canvas.drawLine(Offset(c.dx + bodyR * 0.8, c.dy),
-          Offset(c.dx + bodyR * 1.15, c.dy - bodyR * 0.55), limb);
-    } else {
-      canvas.drawLine(Offset(c.dx - bodyR * 0.82, c.dy + bodyR * 0.05),
-          Offset(c.dx - bodyR * 1.12, c.dy + bodyR * 0.45), limb);
-      canvas.drawLine(Offset(c.dx + bodyR * 0.82, c.dy + bodyR * 0.05),
-          Offset(c.dx + bodyR * 1.12, c.dy + bodyR * 0.45), limb);
-    }
-    // little hands
-    final hand = Paint()..color = const Color(0xFFFFC94D);
-    if (raised) {
-      canvas.drawCircle(
-          Offset(c.dx - bodyR * 1.15, c.dy - bodyR * 0.55), r * 0.09, hand);
-      canvas.drawCircle(
-          Offset(c.dx + bodyR * 1.15, c.dy - bodyR * 0.55), r * 0.09, hand);
-    } else {
-      canvas.drawCircle(
-          Offset(c.dx - bodyR * 1.12, c.dy + bodyR * 0.45), r * 0.09, hand);
-      canvas.drawCircle(
-          Offset(c.dx + bodyR * 1.12, c.dy + bodyR * 0.45), r * 0.09, hand);
-    }
-
-    // ── coin body ──
-    final bodyRect = Rect.fromCircle(
-        center: Offset(c.dx - bodyR * 0.25, c.dy - bodyR * 0.25),
-        radius: bodyR * 1.5);
+    // coin body
+    final bodyRect = Rect.fromCircle(center: c, radius: r * 0.9);
     canvas.drawCircle(
       c,
-      bodyR,
+      r * 0.9,
       Paint()
         ..shader = const RadialGradient(
-          colors: [Color(0xFFFFF1C2), Color(0xFFFFC02E)],
-          stops: [0.2, 1.0],
+          colors: [Color(0xFFFFE9A8), Color(0xFFFFB300)],
+          stops: [0.25, 1.0],
         ).createShader(bodyRect),
     );
-    // outer rim
     canvas.drawCircle(
       c,
-      bodyR,
+      r * 0.9,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.11
-        ..color = const Color(0xFFE08A00),
+        ..strokeWidth = r * 0.10
+        ..color = const Color(0xFFE69500),
     );
-    // gloss highlight (top-left crescent)
-    final gloss = Paint()..color = Colors.white.withOpacity(0.35);
-    canvas.drawCircle(
-        Offset(c.dx - bodyR * 0.34, c.dy - bodyR * 0.4), bodyR * 0.22, gloss);
-    // inner ring
     canvas.drawCircle(
       c,
-      bodyR * 0.78,
+      r * 0.7,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.03
-        ..color = const Color(0xFFFFDE7A),
+        ..strokeWidth = r * 0.035
+        ..color = const Color(0xFFFFD662),
     );
 
-    final eyeY = c.dy - bodyR * 0.06;
-    final eyeDx = bodyR * 0.34;
+    final eyeY = c.dy - r * 0.08;
+    final eyeDx = r * 0.30;
 
-    // cheeks
-    final cheek = Paint()..color = const Color(0xFFFF8A80).withOpacity(0.45);
+    final cheek = Paint()..color = const Color(0xFFFF8A80).withOpacity(0.5);
     canvas.drawCircle(
-        Offset(c.dx - eyeDx * 1.35, c.dy + bodyR * 0.18), bodyR * 0.12, cheek);
+        Offset(c.dx - eyeDx * 1.3, c.dy + r * 0.14), r * 0.095, cheek);
     canvas.drawCircle(
-        Offset(c.dx + eyeDx * 1.35, c.dy + bodyR * 0.18), bodyR * 0.12, cheek);
+        Offset(c.dx + eyeDx * 1.3, c.dy + r * 0.14), r * 0.095, cheek);
 
     final pupil = Paint()..color = ink;
 
@@ -430,53 +374,40 @@ class _CoinPainter extends CustomPainter {
         ..color = ink
         ..strokeWidth = r * 0.06
         ..strokeCap = StrokeCap.round;
-      canvas.drawLine(Offset(c.dx - eyeDx - bodyR * 0.1, eyeY),
-          Offset(c.dx - eyeDx + bodyR * 0.1, eyeY), lp);
-      canvas.drawLine(Offset(c.dx + eyeDx - bodyR * 0.1, eyeY),
-          Offset(c.dx + eyeDx + bodyR * 0.1, eyeY), lp);
+      canvas.drawLine(Offset(c.dx - eyeDx - r * 0.08, eyeY),
+          Offset(c.dx - eyeDx + r * 0.08, eyeY), lp);
+      canvas.drawLine(Offset(c.dx + eyeDx - r * 0.08, eyeY),
+          Offset(c.dx + eyeDx + r * 0.08, eyeY), lp);
     } else if (mood == MascotMood.celebrate) {
-      _happyEye(canvas, Offset(c.dx - eyeDx, eyeY), bodyR * 0.15, ink);
-      _happyEye(canvas, Offset(c.dx + eyeDx, eyeY), bodyR * 0.15, ink);
+      _happyEye(canvas, Offset(c.dx - eyeDx, eyeY), r * 0.13, ink);
+      _happyEye(canvas, Offset(c.dx + eyeDx, eyeY), r * 0.13, ink);
     } else {
-      canvas.drawCircle(Offset(c.dx - eyeDx, eyeY), bodyR * 0.11, pupil);
-      canvas.drawCircle(Offset(c.dx + eyeDx, eyeY), bodyR * 0.11, pupil);
+      canvas.drawCircle(Offset(c.dx - eyeDx, eyeY), r * 0.09, pupil);
+      canvas.drawCircle(Offset(c.dx + eyeDx, eyeY), r * 0.09, pupil);
       final hl = Paint()..color = Colors.white;
       canvas.drawCircle(
-          Offset(c.dx - eyeDx + bodyR * 0.04, eyeY - bodyR * 0.04),
-          bodyR * 0.04, hl);
+          Offset(c.dx - eyeDx + r * 0.03, eyeY - r * 0.03), r * 0.03, hl);
       canvas.drawCircle(
-          Offset(c.dx + eyeDx + bodyR * 0.04, eyeY - bodyR * 0.04),
-          bodyR * 0.04, hl);
+          Offset(c.dx + eyeDx + r * 0.03, eyeY - r * 0.03), r * 0.03, hl);
     }
 
-    // worried eyebrows
     if (mood == MascotMood.worried) {
       final bp = Paint()
         ..color = ink
         ..strokeWidth = r * 0.05
         ..strokeCap = StrokeCap.round;
-      canvas.drawLine(Offset(c.dx - eyeDx - bodyR * 0.12, eyeY - bodyR * 0.28),
-          Offset(c.dx - eyeDx + bodyR * 0.12, eyeY - bodyR * 0.16), bp);
-      canvas.drawLine(Offset(c.dx + eyeDx + bodyR * 0.12, eyeY - bodyR * 0.28),
-          Offset(c.dx + eyeDx - bodyR * 0.12, eyeY - bodyR * 0.16), bp);
-      // sweat drop
-      final drop = Path()
-        ..moveTo(c.dx + eyeDx * 1.7, eyeY - bodyR * 0.05)
-        ..quadraticBezierTo(c.dx + eyeDx * 1.95, eyeY + bodyR * 0.05,
-            c.dx + eyeDx * 1.7, eyeY + bodyR * 0.14)
-        ..quadraticBezierTo(c.dx + eyeDx * 1.5, eyeY + bodyR * 0.05,
-            c.dx + eyeDx * 1.7, eyeY - bodyR * 0.05)
-        ..close();
-      canvas.drawPath(drop, Paint()..color = const Color(0xFF7FC8FF));
+      canvas.drawLine(Offset(c.dx - eyeDx - r * 0.10, eyeY - r * 0.24),
+          Offset(c.dx - eyeDx + r * 0.10, eyeY - r * 0.15), bp);
+      canvas.drawLine(Offset(c.dx + eyeDx + r * 0.10, eyeY - r * 0.24),
+          Offset(c.dx + eyeDx - r * 0.10, eyeY - r * 0.15), bp);
     }
 
-    // mouth
-    final mY = c.dy + bodyR * 0.4;
-    final mW = bodyR * 0.4;
+    final mY = c.dy + r * 0.34;
+    final mW = r * 0.38;
     if (mood == MascotMood.celebrate) {
       final op = Path()
         ..moveTo(c.dx - mW, mY)
-        ..quadraticBezierTo(c.dx, mY + bodyR * 0.4, c.dx + mW, mY)
+        ..quadraticBezierTo(c.dx, mY + r * 0.36, c.dx + mW, mY)
         ..close();
       canvas.drawPath(op, Paint()..color = ink);
     } else {
@@ -487,38 +418,14 @@ class _CoinPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round;
       final path = Path();
       if (mood == MascotMood.worried) {
-        path.moveTo(c.dx - mW, mY + bodyR * 0.08);
-        path.quadraticBezierTo(
-            c.dx, mY - bodyR * 0.14, c.dx + mW, mY + bodyR * 0.08);
+        path.moveTo(c.dx - mW, mY + r * 0.06);
+        path.quadraticBezierTo(c.dx, mY - r * 0.12, c.dx + mW, mY + r * 0.06);
       } else {
-        path.moveTo(c.dx - mW, mY - bodyR * 0.02);
-        path.quadraticBezierTo(
-            c.dx, mY + bodyR * 0.24, c.dx + mW, mY - bodyR * 0.02);
+        path.moveTo(c.dx - mW, mY - r * 0.02);
+        path.quadraticBezierTo(c.dx, mY + r * 0.20, c.dx + mW, mY - r * 0.02);
       }
       canvas.drawPath(path, mouth);
     }
-
-    // celebrate sparkles
-    if (mood == MascotMood.celebrate) {
-      final sp = Paint()..color = const Color(0xFFFFD23F);
-      _sparkle(canvas, Offset(c.dx - bodyR * 1.05, c.dy - bodyR * 0.9),
-          bodyR * 0.16, sp);
-      _sparkle(canvas, Offset(c.dx + bodyR * 1.0, c.dy - bodyR * 0.95),
-          bodyR * 0.12, sp);
-      _sparkle(canvas, Offset(c.dx + bodyR * 1.15, c.dy + bodyR * 0.1),
-          bodyR * 0.1, sp);
-    }
-  }
-
-  void _sparkle(Canvas canvas, Offset c, double s, Paint p) {
-    final path = Path()
-      ..moveTo(c.dx, c.dy - s)
-      ..quadraticBezierTo(c.dx + s * 0.18, c.dy - s * 0.18, c.dx + s, c.dy)
-      ..quadraticBezierTo(c.dx + s * 0.18, c.dy + s * 0.18, c.dx, c.dy + s)
-      ..quadraticBezierTo(c.dx - s * 0.18, c.dy + s * 0.18, c.dx - s, c.dy)
-      ..quadraticBezierTo(c.dx - s * 0.18, c.dy - s * 0.18, c.dx, c.dy - s)
-      ..close();
-    canvas.drawPath(path, p);
   }
 
   void _happyEye(Canvas canvas, Offset center, double w, Color color) {

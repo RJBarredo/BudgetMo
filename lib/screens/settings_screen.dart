@@ -1,4 +1,3 @@
-import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,7 +12,6 @@ import 'category_budgets_screen.dart';
 import 'recurring_screen.dart';
 import 'share_card_screen.dart';
 import 'integrity_screen.dart';
-import 'theme_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,8 +21,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static Color get green => cAccent;
-  static Color get ink => cInk;
+  static Color get green => const Color(0xFF2ECC71);
+  static Color get ink => const Color(0xFF1A2E1A);
 
   String _name = 'Student';
   String _avatar = UserAvatars.defaultId;
@@ -84,7 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: cSurface,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         title: Text(title,
@@ -106,7 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () => Navigator.pop(context),
               child: Text('Cancel',
                   style: GoogleFonts.plusJakartaSans(
-                      color: cSubtext))),
+                      color: Colors.black45))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: green,
@@ -149,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: cSurface,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         title: Text('$title permission needed',
@@ -163,7 +161,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text('Not now',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext)),
+                    color: Colors.black45)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -189,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: cSurface,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         title: Text(title,
@@ -214,7 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () => Navigator.pop(context),
               child: Text('Close',
                   style: GoogleFonts.plusJakartaSans(
-                      color: cSubtext))),
+                      color: Colors.black45))),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
                 backgroundColor: green,
@@ -246,7 +244,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: cSurface,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         title: Text('Restore from backup',
@@ -259,7 +257,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Text(
                 'Paste a backup below. This replaces all current data.',
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.5, color: cSubtext)),
+                    fontSize: 12.5, color: Colors.black45)),
             const SizedBox(height: 12),
             TextField(
               controller: ctrl,
@@ -278,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () => Navigator.pop(context),
               child: Text('Cancel',
                   style: GoogleFonts.plusJakartaSans(
-                      color: cSubtext))),
+                      color: Colors.black45))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE67E22),
@@ -319,9 +317,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cBg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: AppBar(
-        backgroundColor: cBg,
+        backgroundColor: const Color(0xFFF5F7F5),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded, color: ink),
@@ -355,14 +353,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color: ink)),
                       Text('Tap avatar or pencil to edit',
                           style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12, color: cSubtext)),
+                              fontSize: 12, color: Colors.black45)),
                     ],
                   ),
                 ),
                 IconButton(
                     onPressed: _editName,
                     icon: Icon(Icons.edit_rounded,
-                        color: cSubtext, size: 20)),
+                        color: Colors.black45, size: 20)),
               ],
             ),
           ),
@@ -442,7 +440,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: Text(
                       'Piso nudges you if nothing\'s logged by your set time',
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11.5, color: cSubtext)),
+                          fontSize: 11.5, color: Colors.black45)),
                   value: _reminder,
                   onChanged: (v) async {
                     if (v) {
@@ -490,7 +488,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: ink)),
                     subtitle: Text('Fires immediately',
                         style: GoogleFonts.plusJakartaSans(
-                            fontSize: 11.5, color: cSubtext)),
+                            fontSize: 11.5, color: Colors.black45)),
                     trailing: Icon(Icons.notifications_active_rounded,
                         color: green),
                     onTap: () async {
@@ -513,16 +511,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-
-          const SizedBox(height: 18),
-          _sectionTitle('Appearance'),
-          _tile('Theme & dark mode', 'Colors, gradients, dark mode',
-              Icons.palette_rounded, () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const ThemeScreen()));
-          }),
 
           const SizedBox(height: 18),
           _sectionTitle('Data & backup'),
@@ -568,7 +556,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   BoxDecoration _cardDeco() => BoxDecoration(
-        color: cSurface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -583,7 +571,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.6,
-                color: cSubtext)),
+                color: Colors.black45)),
       );
 
   Widget _tile(String title, String subtitle, IconData icon,
@@ -611,7 +599,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: ink)),
         subtitle: Text(subtitle,
             style: GoogleFonts.plusJakartaSans(
-                fontSize: 12, color: cSubtext)),
+                fontSize: 12, color: Colors.black45)),
         trailing: const Icon(Icons.chevron_right_rounded,
             color: Colors.black26),
         onTap: onTap,

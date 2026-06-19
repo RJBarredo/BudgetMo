@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
-import '../theme/app_theme.dart';
 import '../widgets/mascot_advisor.dart';
 
 class ShareCardScreen extends StatelessWidget {
@@ -54,7 +53,7 @@ class ShareCardScreen extends StatelessWidget {
         '${streak >= 2 ? '\n🔥 $streak-day no-spend streak' : ''}';
 
     return Scaffold(
-      backgroundColor: AppPalette.of(context).bg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: appHeader(context, 'Your Week'),
       body: phoneWrap(
         SingleChildScrollView(

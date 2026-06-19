@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
-import '../theme/app_theme.dart';
 
 class SavingsScreen extends StatefulWidget {
   const SavingsScreen({super.key});
@@ -123,7 +122,7 @@ class _SavingsScreenState extends State<SavingsScreen>
             onPressed: () => Navigator.pop(context, false),
             child: Text('Cancel',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext)),
+                    color: Colors.black45)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -201,7 +200,7 @@ class _SavingsScreenState extends State<SavingsScreen>
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: AppPalette.of(context).bg,
+          backgroundColor: const Color(0xFFF5F7F5),
           appBar: appHeader(context, 'Savings', actions: [
             IconButton(
               onPressed: _addNewGoal,
@@ -259,14 +258,14 @@ class _SavingsScreenState extends State<SavingsScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [cGrad1, cGrad2],
+          colors: [const Color(0xFF12280F), const Color(0xFF2D5A2D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: cInk.withOpacity(0.3),
+              color: const Color(0xFF1A2E1A).withOpacity(0.3),
               blurRadius: 16,
               offset: const Offset(0, 6))
         ],
@@ -380,7 +379,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                   horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: active
-                    ? cInk
+                    ? const Color(0xFF1A2E1A)
                     : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
@@ -395,7 +394,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                       fontWeight: FontWeight.w600,
                       color: active
                           ? Colors.white
-                          : cSubtext)),
+                          : Colors.black45)),
             ),
           );
         },
@@ -419,7 +418,7 @@ class _SavingsScreenState extends State<SavingsScreen>
         gradient: LinearGradient(
           colors: isComplete
               ? [const Color(0xFFFF8F00), const Color(0xFFFFC107)]
-              : [cGrad1, cGrad2],
+              : [const Color(0xFF12280F), const Color(0xFF2D5A2D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -428,7 +427,7 @@ class _SavingsScreenState extends State<SavingsScreen>
           BoxShadow(
               color: (isComplete
                   ? const Color(0xFFFF8F00)
-                  : cGrad1)
+                  : const Color(0xFF12280F))
                   .withOpacity(0.3),
               blurRadius: 16,
               offset: const Offset(0, 6))
@@ -590,13 +589,13 @@ class _SavingsScreenState extends State<SavingsScreen>
                   style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
-                      color: cInk)),
+                      color: const Color(0xFF1A2E1A))),
             ],
           ),
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: cBg,
+              color: const Color(0xFFF5F7F5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                   color: const Color(0xFF2ECC71)
@@ -641,7 +640,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                       color: _addCtrl.text == v
                           ? const Color(0xFF2ECC71)
                           .withOpacity(0.15)
-                          : cBg,
+                          : const Color(0xFFF5F7F5),
                       borderRadius:
                       BorderRadius.circular(8),
                       border: Border.all(
@@ -656,7 +655,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                             fontWeight: FontWeight.w700,
                             color: _addCtrl.text == v
                                 ? const Color(0xFF2ECC71)
-                                : cSubtext)),
+                                : Colors.black45)),
                   ),
                 ),
               );
@@ -720,7 +719,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                   style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
-                      color: cInk)),
+                      color: const Color(0xFF1A2E1A))),
             ],
           ),
           const SizedBox(height: 16),
@@ -753,8 +752,8 @@ class _SavingsScreenState extends State<SavingsScreen>
                       horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: _nameCtrl.text == label
-                        ? cInk
-                        : cBg,
+                        ? const Color(0xFF1A2E1A)
+                        : const Color(0xFFF5F7F5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(v,
@@ -763,7 +762,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                           fontWeight: FontWeight.w600,
                           color: _nameCtrl.text == label
                               ? Colors.white
-                              : cSubtext)),
+                              : Colors.black45)),
                 ),
               );
             }).toList(),
@@ -799,7 +798,7 @@ class _SavingsScreenState extends State<SavingsScreen>
           style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: cSubtext)),
+              color: Colors.black45)),
     );
   }
 
@@ -807,7 +806,7 @@ class _SavingsScreenState extends State<SavingsScreen>
       {bool isNumber = false}) {
     return Container(
       decoration: BoxDecoration(
-        color: cBg,
+        color: const Color(0xFFF5F7F5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.black.withOpacity(0.08)),
       ),

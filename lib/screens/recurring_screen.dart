@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../models/recurring_expense.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
-import '../theme/app_theme.dart';
 
 class RecurringScreen extends StatefulWidget {
   const RecurringScreen({super.key});
@@ -14,8 +13,8 @@ class RecurringScreen extends StatefulWidget {
 }
 
 class _RecurringScreenState extends State<RecurringScreen> {
-  static Color get green => cAccent;
-  static Color get ink => cInk;
+  static Color get green => const Color(0xFF2ECC71);
+  static Color get ink => const Color(0xFF1A2E1A);
   List<RecurringExpense> _items = [];
 
   @override
@@ -40,7 +39,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: cSurface,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
@@ -153,7 +152,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
                       children: [
                         Text('Next due',
                             style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14, color: cSubtext)),
+                                fontSize: 14, color: Colors.black45)),
                         Text(
                             DateFormat('MMM d, yyyy').format(nextDue),
                             style: GoogleFonts.plusJakartaSans(
@@ -230,7 +229,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppPalette.of(context).bg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: appHeader(context, 'Recurring'),
       body: phoneWrap(_items.isEmpty
           ? Center(
@@ -242,7 +241,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
                   Text('No recurring expenses yet',
                       style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
-                          color: cSubtext)),
+                          color: Colors.black45)),
                   const SizedBox(height: 6),
                   Text('Add rent, load, or subscriptions — they\'ll\nlog themselves automatically.',
                       textAlign: TextAlign.center,
@@ -279,7 +278,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: cSurface,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -314,7 +313,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
                                     '${r.frequencyLabel} · next ${DateFormat('MMM d').format(r.nextDue)}',
                                     style: GoogleFonts.plusJakartaSans(
                                         fontSize: 12,
-                                        color: cSubtext)),
+                                        color: Colors.black45)),
                               ],
                             ),
                           ),

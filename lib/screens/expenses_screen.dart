@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
-import '../theme/app_theme.dart';
 import '../widgets/expense_card.dart';
 import 'add_expense_screen.dart';
 
@@ -79,7 +78,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: Text('Cancel',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext)),
+                    color: Colors.black45)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -125,7 +124,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppPalette.of(context).bg,
+      backgroundColor: const Color(0xFFF5F7F5),
       appBar: appHeader(context, 'Expenses', actions: [
         if (_expenses.isNotEmpty)
           Padding(
@@ -239,7 +238,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                               fontWeight: FontWeight.w600,
                               color: selected
                                   ? Colors.white
-                                  : cSubtext,
+                                  : Colors.black45,
                             )),
                       ],
                     ),
@@ -391,7 +390,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: cSubtext),
+                color: Colors.black45),
           ),
           const SizedBox(height: 6),
           Text(

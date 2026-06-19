@@ -1,4 +1,3 @@
-import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/storage_service.dart';
@@ -124,7 +123,7 @@ class InsightsCard extends StatelessWidget {
                 Text(insight.text,
                     style: GoogleFonts.plusJakartaSans(
                         fontSize: 13,
-                        color: cSubtext,
+                        color: Colors.black45,
                         height: 1.5)),
               ],
             ),
@@ -350,7 +349,7 @@ class QuickLogCard extends StatelessWidget {
           children: [
             Text('Enter amount:',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext, fontSize: 13)),
+                    color: Colors.black45, fontSize: 13)),
             const SizedBox(height: 8),
             TextField(
               controller: ctrl,
@@ -378,7 +377,7 @@ class QuickLogCard extends StatelessWidget {
             onPressed: () => Navigator.pop(context, false),
             child: Text('Cancel',
                 style: GoogleFonts.plusJakartaSans(
-                    color: cSubtext)),
+                    color: Colors.black45)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -415,7 +414,7 @@ class QuickLogCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
-                    color: cInk)),
+                    color: const Color(0xFF1A2E1A))),
             const SizedBox(width: 8),
             Text('Hold to edit amount',
                 style: GoogleFonts.plusJakartaSans(
@@ -458,7 +457,7 @@ class QuickLogCard extends StatelessWidget {
                               style: GoogleFonts
                                   .plusJakartaSans(
                                   color:
-                                  cSubtext)),
+                                  Colors.black45)),
                         ),
                         ElevatedButton(
                           onPressed: () =>
