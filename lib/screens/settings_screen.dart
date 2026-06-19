@@ -12,6 +12,7 @@ import 'category_budgets_screen.dart';
 import 'recurring_screen.dart';
 import 'share_card_screen.dart';
 import 'integrity_screen.dart';
+import 'theme_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -385,6 +386,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               () => _editBudget('Monthly budget',
                   StorageService.getMonthlyBudget(),
                   StorageService.setMonthlyBudget)),
+
+          const SizedBox(height: 18),
+          _sectionTitle('Appearance'),
+          _tile('Theme & colors', 'Accent color and dark mode',
+              Icons.palette_rounded, () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const ThemeScreen()));
+          }),
 
           const SizedBox(height: 18),
           _sectionTitle('Categories'),

@@ -10,10 +10,10 @@ import 'expenses_screen.dart';
 import 'savings_screen.dart';
 import 'charts_screen.dart';
 import 'settings_screen.dart';
-import '../widgets/animations.dart';
 import '../widgets/mascot_advisor.dart';
 import '../widgets/user_avatar.dart';
 import '../widgets/budget_ring.dart';
+import '../theme/theme_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,18 +35,16 @@ class _HomeScreenState extends State<HomeScreen> {
       const SavingsScreen(),
     ];
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       body: screens[_currentIndex],
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
-              backgroundColor: const Color(0xFF2ECC71),
+              backgroundColor: cAccent,
               foregroundColor: Colors.white,
               elevation: 3,
               onPressed: () async {
-                final r = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const AddExpenseScreen()));
+                final r = await Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const AddExpenseScreen()));
                 if (r == true) setState(() => _homeKey++);
               },
               child: const Icon(Icons.add_rounded, size: 30),
@@ -55,17 +53,16 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
-        selectedItemColor: const Color(0xFF2ECC71),
-        unselectedItemColor: Colors.black45,
+        selectedItemColor: cAccent,
+        unselectedItemColor: cSubtext,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
+        backgroundColor: cSurface,
         elevation: 12,
-        selectedLabelStyle: GoogleFonts.plusJakartaSans(
-            fontWeight: FontWeight.w700, fontSize: 11),
+        selectedLabelStyle:
+            GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 11),
         unselectedLabelStyle: GoogleFonts.plusJakartaSans(fontSize: 11),
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
           BottomNavigationBarItem(
               icon: Icon(Icons.receipt_long_rounded), label: 'Expenses'),
           BottomNavigationBarItem(
@@ -100,6 +97,9 @@ class _HomeTabState extends State<_HomeTab> {
   String _userName = 'there';
   String _userAvatar = UserAvatars.defaultId;
   List<double> _weekDaily = [];
+  List<MapEntry<String, double>> _topCats = [];
+  double _weekCatTotal = 0;
+  int _txCountWeek = 0;
 
   @override
   void initState() {
@@ -110,6 +110,41 @@ class _HomeTabState extends State<_HomeTab> {
     });
   }
 
+  void _load() {
+    final box = Hive.box('budget');
+    final now = DateTime.now();
+    final monday = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    final daily = List<double>.filled(7, 0.0);
+    final catMap = <String, double>{};
+    var count = 0;
+    for (final e in StorageService.getExpenses()) {
+      if (!e.date.isBefore(monday)) {
+        final idx = e.date.weekday - 1;
+        if (idx >= 0 && idx < 7) daily[idx] += e.amount;
+        catMap[e.category] = (catMap[e.category] ?? 0) + e.amount;
+        count++;
+      }
+    }
+    final entries = catMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    setState(() {
+      _userName = box.get('userName', defaultValue: 'there');
+      _userAvatar = box.get('userAvatar', defaultValue: UserAvatars.defaultId);
+      _weeklyBudget = StorageService.getWeeklyBudget();
+      _spentWeek = StorageService.getTotalSpentThisWeek();
+      _spentToday = StorageService.getTotalSpentToday();
+      _incomeWeek = StorageService.getTotalIncomeThisWeek();
+      _recap = StorageService.getPendingRecap();
+      _recent = StorageService.getExpenses().take(5).toList();
+      _savings = StorageService.getSavingsGoal();
+      _weekDaily = daily;
+      _topCats = entries.take(3).toList();
+      _weekCatTotal = catMap.values.fold(0.0, (a, b) => a + b);
+      _txCountWeek = count;
+    });
+  }
+
   void _maybeShowReminder() {
     if (!mounted) return;
     if (!StorageService.shouldShowReminderNow(_spentToday)) return;
@@ -117,9 +152,8 @@ class _HomeTabState extends State<_HomeTab> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24)),
+        backgroundColor: cSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -127,15 +161,13 @@ class _HomeTabState extends State<_HomeTab> {
             const SizedBox(height: 14),
             Text("Don't forget to log!",
                 style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                    color: const Color(0xFF1A2E1A))),
+                    fontWeight: FontWeight.w800, fontSize: 18, color: cInk)),
             const SizedBox(height: 8),
             Text(
               "You haven't logged any spending today. Want to add it now so I can keep your week accurate?",
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13.5, height: 1.4, color: Colors.black45),
+                  fontSize: 13.5, height: 1.4, color: cSubtext),
             ),
           ],
         ),
@@ -145,11 +177,11 @@ class _HomeTabState extends State<_HomeTab> {
             onPressed: () => Navigator.pop(context),
             child: Text('Later',
                 style: GoogleFonts.plusJakartaSans(
-                    color: Colors.black45, fontWeight: FontWeight.w600)),
+                    color: cSubtext, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2ECC71),
+                backgroundColor: cAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12))),
@@ -160,38 +192,11 @@ class _HomeTabState extends State<_HomeTab> {
               if (result == true) _load();
             },
             child: Text('Log now',
-                style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w700)),
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
     );
-  }
-
-  void _load() {
-    final box = Hive.box('budget');
-    setState(() {
-      _userName = box.get('userName', defaultValue: 'there');
-      _userAvatar = box.get('userAvatar', defaultValue: UserAvatars.defaultId);
-      _weeklyBudget = StorageService.getWeeklyBudget();
-      _spentWeek = StorageService.getTotalSpentThisWeek();
-      _spentToday = StorageService.getTotalSpentToday();
-      _incomeWeek = StorageService.getTotalIncomeThisWeek();
-      _recap = StorageService.getPendingRecap();
-      _recent = StorageService.getExpenses().take(4).toList();
-      _savings = StorageService.getSavingsGoal();
-      final now = DateTime.now();
-      final monday = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: now.weekday - 1));
-      final daily = List<double>.filled(7, 0.0);
-      for (final e in StorageService.getExpenses()) {
-        if (!e.date.isBefore(monday)) {
-          final idx = e.date.weekday - 1;
-          if (idx >= 0 && idx < 7) daily[idx] += e.amount;
-        }
-      }
-      _weekDaily = daily;
-    });
   }
 
   String _getWeekRange() {
@@ -234,15 +239,12 @@ class _HomeTabState extends State<_HomeTab> {
 
   void _addQuick(String title, double amount, String category) async {
     await StorageService.addExpense(Expense(
-        title: title,
-        amount: amount,
-        category: category,
-        date: DateTime.now()));
+        title: title, amount: amount, category: category, date: DateTime.now()));
     _load();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Added $title · ₱${amount.toStringAsFixed(0)}'),
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: cAccent,
         duration: const Duration(milliseconds: 1200),
       ));
     }
@@ -251,14 +253,12 @@ class _HomeTabState extends State<_HomeTab> {
   void _claimRecap() async {
     final moved = await StorageService.claimRecapToSavings();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(moved > 0
-              ? '₱${moved.toStringAsFixed(0)} moved to savings 🎉'
-              : 'All set for the new week!'),
-          backgroundColor: const Color(0xFF2ECC71),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(moved > 0
+            ? '₱${moved.toStringAsFixed(0)} moved to savings 🎉'
+            : 'All set for the new week!'),
+        backgroundColor: cAccent,
+      ));
     }
     _load();
   }
@@ -277,19 +277,21 @@ class _HomeTabState extends State<_HomeTab> {
     final topPad = MediaQuery.of(context).padding.top;
 
     return RefreshIndicator(
-      color: const Color(0xFF2ECC71),
+      color: cAccent,
       onRefresh: () async => _load(),
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           _greenHero(topPad, weekRemaining, over, weekProgress),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 120),
+            padding: const EdgeInsets.fromLTRB(18, 0, 18, 36),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 18),
-                _pisoTipCard(),
+                const SizedBox(height: 16),
+                _todayStrip(),
+                const SizedBox(height: 16),
+                _pisoTipCard(over),
                 const SizedBox(height: 16),
                 _flowCard(over),
                 if (_recap != null) ...[
@@ -299,6 +301,10 @@ class _HomeTabState extends State<_HomeTab> {
                 const SizedBox(height: 24),
                 _quickLogSection(),
                 const SizedBox(height: 24),
+                _sectionLabel('Where it went'),
+                const SizedBox(height: 12),
+                _topCategories(),
+                const SizedBox(height: 24),
                 _sectionLabel('Your money'),
                 const SizedBox(height: 12),
                 _moneyCards(weekProgress),
@@ -306,23 +312,18 @@ class _HomeTabState extends State<_HomeTab> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _sectionLabel('Recent'),
+                    _sectionLabel('Recent activity'),
                     GestureDetector(
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const ExpensesScreen())),
-                      child: Row(
-                        children: [
-                          Text('See all',
-                              style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13,
-                                  color: const Color(0xFF2ECC71),
-                                  fontWeight: FontWeight.w700)),
-                          Icon(Icons.chevron_right_rounded,
-                              size: 18, color: const Color(0xFF2ECC71)),
-                        ],
-                      ),
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const ExpensesScreen())),
+                      child: Row(children: [
+                        Text('See all',
+                            style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                color: cAccent,
+                                fontWeight: FontWeight.w700)),
+                        Icon(Icons.chevron_right_rounded, size: 18, color: cAccent),
+                      ]),
                     ),
                   ],
                 ),
@@ -340,20 +341,20 @@ class _HomeTabState extends State<_HomeTab> {
   }
 
   // ── GREEN HERO ────────────────────────────────────────────
-  Widget _greenHero(
-      double topPad, double remaining, bool over, double progress) {
+  Widget _greenHero(double topPad, double remaining, bool over, double progress) {
     final daysLeft = (8 - DateTime.now().weekday).clamp(1, 7);
     final safeToday = remaining > 0 ? remaining / daysLeft : 0.0;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(20, topPad + 16, 20, 26),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF12280F), Color(0xFF2D5A2D)],
+          colors: cHeroGrad,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+        borderRadius:
+            const BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: Column(
         children: [
@@ -407,6 +408,10 @@ class _HomeTabState extends State<_HomeTab> {
             percent: progress,
             size: 210,
             stroke: 16,
+            colors: [
+              Colors.white,
+              Color.lerp(cAccent, Colors.white, 0.35)!,
+            ],
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -426,8 +431,7 @@ class _HomeTabState extends State<_HomeTab> {
                 const SizedBox(height: 4),
                 Text('of ₱${_weeklyBudget.toStringAsFixed(0)}',
                     style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        color: Colors.white.withOpacity(0.55))),
+                        fontSize: 13, color: Colors.white.withOpacity(0.55))),
               ],
             ),
           ),
@@ -443,8 +447,8 @@ class _HomeTabState extends State<_HomeTab> {
                       'Safe today', '₱${safeToday.toStringAsFixed(0)}')),
               _heroDivider(),
               Expanded(
-                  child: _heroStat(
-                      'Spent', '₱${_spentWeek.toStringAsFixed(0)}')),
+                  child:
+                      _heroStat('Spent', '₱${_spentWeek.toStringAsFixed(0)}')),
               _heroDivider(),
               Expanded(child: _heroStat('Days left', '$daysLeft')),
             ],
@@ -459,9 +463,7 @@ class _HomeTabState extends State<_HomeTab> {
       children: [
         Text(value,
             style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: Colors.white)),
+                fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
         const SizedBox(height: 2),
         Text(label,
             style: GoogleFonts.plusJakartaSans(
@@ -472,6 +474,104 @@ class _HomeTabState extends State<_HomeTab> {
 
   Widget _heroDivider() =>
       Container(width: 1, height: 32, color: Colors.white.withOpacity(0.18));
+
+  // ── TODAY STRIP ───────────────────────────────────────────
+  Widget _todayStrip() {
+    final net = _incomeWeek - _spentWeek;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: _softCard(),
+      child: Row(
+        children: [
+          Expanded(
+              child: _todayCell('Today', '₱${_spentToday.toStringAsFixed(0)}',
+                  Icons.today_rounded, cAccent)),
+          _todayDivider(),
+          Expanded(
+              child: _todayCell('This week', '₱${_spentWeek.toStringAsFixed(0)}',
+                  Icons.date_range_rounded, const Color(0xFF3498DB))),
+          _todayDivider(),
+          Expanded(
+              child: _todayCell(
+                  'Net',
+                  '${net < 0 ? '-' : ''}₱${net.abs().toStringAsFixed(0)}',
+                  net >= 0
+                      ? Icons.trending_up_rounded
+                      : Icons.trending_down_rounded,
+                  net >= 0
+                      ? const Color(0xFF2ECC71)
+                      : const Color(0xFFE74C3C))),
+        ],
+      ),
+    );
+  }
+
+  Widget _todayCell(String label, String value, IconData icon, Color color) {
+    return Column(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(height: 6),
+        Text(value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.plusJakartaSans(
+                fontSize: 15.5, fontWeight: FontWeight.w800, color: cInk)),
+        const SizedBox(height: 1),
+        Text(label,
+            style: GoogleFonts.plusJakartaSans(fontSize: 11, color: cSubtext)),
+      ],
+    );
+  }
+
+  Widget _todayDivider() => Container(width: 1, height: 34, color: cHairline);
+
+  // ── PISO TIP CARD ─────────────────────────────────────────
+  Widget _pisoTipCard(bool over) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _softCard(),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CoinMascot(
+              size: 52,
+              mood: over ? MascotMood.worried : MascotMood.happy),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Text('Piso',
+                      style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          color: cInk)),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: cAccent.withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Text('your money buddy',
+                        style: GoogleFonts.plusJakartaSans(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: cAccent)),
+                  ),
+                ]),
+                const SizedBox(height: 6),
+                Text(_pisoTip(),
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13.5, height: 1.35, color: cSubtext)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // ── FLOW CARD (sparkline + income/spent) ──────────────────
   Widget _flowCard(bool over) {
@@ -484,22 +584,22 @@ class _HomeTabState extends State<_HomeTab> {
     }
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)
-        ],
-      ),
+      decoration: _softCard(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('This week',
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1A2E1A))),
-          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('This week',
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15, fontWeight: FontWeight.w800, color: cInk)),
+              Text('$_txCountWeek logged',
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12, color: cSubtext)),
+            ],
+          ),
+          const SizedBox(height: 14),
           if (pts.length >= 2)
             SizedBox(
               height: 48,
@@ -507,45 +607,36 @@ class _HomeTabState extends State<_HomeTab> {
                 child: CustomPaint(
                   size: const Size(double.infinity, 48),
                   painter: _SparkPainter(
-                      pts,
-                      over
-                          ? const Color(0xFFE74C3C)
-                          : const Color(0xFF2ECC71)),
+                      pts, over ? const Color(0xFFE74C3C) : cAccent),
                 ),
               ),
             )
           else
-            Stack(
-              children: [
-                Container(
+            Stack(children: [
+              Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                      color: cHairline,
+                      borderRadius: BorderRadius.circular(8))),
+              FractionallySizedBox(
+                widthFactor: _weeklyBudget > 0
+                    ? (_spentWeek / _weeklyBudget).clamp(0.02, 1.0)
+                    : 0.02,
+                child: Container(
                     height: 8,
                     decoration: BoxDecoration(
-                        color: const Color(0xFF1A2E1A).withOpacity(0.06),
+                        color: over ? const Color(0xFFE74C3C) : cAccent,
                         borderRadius: BorderRadius.circular(8))),
-                FractionallySizedBox(
-                  widthFactor: _weeklyBudget > 0
-                      ? (_spentWeek / _weeklyBudget).clamp(0.02, 1.0)
-                      : 0.02,
-                  child: Container(
-                      height: 8,
-                      decoration: BoxDecoration(
-                          color: over
-                              ? const Color(0xFFE74C3C)
-                              : const Color(0xFF2ECC71),
-                          borderRadius: BorderRadius.circular(8))),
-                ),
-              ],
-            ),
+              ),
+            ]),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _flowPill('Income', _incomeWeek, Icons.south_west_rounded,
-                  const Color(0xFF2ECC71)),
-              const SizedBox(width: 10),
-              _flowPill('Spent', _spentWeek, Icons.north_east_rounded,
-                  const Color(0xFFE74C3C)),
-            ],
-          ),
+          Row(children: [
+            _flowPill('Income', _incomeWeek, Icons.south_west_rounded,
+                const Color(0xFF2ECC71)),
+            const SizedBox(width: 10),
+            _flowPill('Spent', _spentWeek, Icons.north_east_rounded,
+                const Color(0xFFE74C3C)),
+          ]),
         ],
       ),
     );
@@ -571,9 +662,7 @@ class _HomeTabState extends State<_HomeTab> {
             const SizedBox(height: 4),
             Text('₱${value.toStringAsFixed(0)}',
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: color)),
+                    fontSize: 16, fontWeight: FontWeight.w800, color: color)),
           ],
         ),
       ),
@@ -615,18 +704,15 @@ class _HomeTabState extends State<_HomeTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.bolt_rounded,
-                color: Color(0xFFF39C12), size: 20),
-            const SizedBox(width: 4),
-            _sectionLabel('Quick Log'),
-            const SizedBox(width: 8),
-            Text('tap to add instantly',
-                style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11.5, color: Colors.black38)),
-          ],
-        ),
+        Row(children: [
+          const Icon(Icons.bolt_rounded, color: Color(0xFFF39C12), size: 20),
+          const SizedBox(width: 4),
+          _sectionLabel('Quick Log'),
+          const SizedBox(width: 8),
+          Text('tap to add instantly',
+              style:
+                  GoogleFonts.plusJakartaSans(fontSize: 11.5, color: cFaint)),
+        ]),
         const SizedBox(height: 12),
         SizedBox(
           height: 118,
@@ -644,13 +730,12 @@ class _HomeTabState extends State<_HomeTab> {
                   width: 96,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cSurface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border(top: BorderSide(color: color, width: 3)),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8)
+                          color: Colors.black.withOpacity(0.04), blurRadius: 8)
                     ],
                   ),
                   child: Column(
@@ -663,14 +748,14 @@ class _HomeTabState extends State<_HomeTab> {
                         decoration: BoxDecoration(
                             color: color.withOpacity(0.14),
                             borderRadius: BorderRadius.circular(11)),
-                        child: Icon(it['icon'] as IconData,
-                            color: color, size: 20),
+                        child:
+                            Icon(it['icon'] as IconData, color: color, size: 20),
                       ),
                       Text(it['title'] as String,
                           style: GoogleFonts.plusJakartaSans(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF1A2E1A))),
+                              color: cInk)),
                       Text('₱${(it['amount'] as double).toStringAsFixed(0)}',
                           style: GoogleFonts.plusJakartaSans(
                               fontSize: 12.5,
@@ -687,197 +772,99 @@ class _HomeTabState extends State<_HomeTab> {
     );
   }
 
-  // ── GREETING ──────────────────────────────────────────────
-  Widget _greetingRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_getGreeting(),
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1A2E1A),
-                      height: 1.1)),
-              const SizedBox(height: 2),
-              Text(_userName,
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black45)),
-              Text(DateFormat('EEEE, MMM d').format(DateTime.now()),
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12.5, color: Colors.black45)),
-            ],
-          ),
-        ),
-        GestureDetector(
-          onTap: _changeAvatar,
-          child: Row(children: [
-            GestureDetector(
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen())),
-              child: Container(
-                width: 42,
-                height: 42,
-                margin: const EdgeInsets.only(right: 10),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 6)
-                    ]),
-                child: Icon(Icons.settings_rounded, color: Colors.black45, size: 22),
-              ),
-            ),
-            UserAvatar(id: _userAvatar, size: 46),
-          ]),
-        ),
-      ],
-    );
-  }
-
-  // ── PISO TIP CARD ─────────────────────────────────────────
-  Widget _pisoTipCard() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
-      decoration: _softCard(),
-      child: Row(
-        children: [
-          const CoinMascot(size: 46, mood: MascotMood.happy),
-          const SizedBox(width: 12),
+  // ── TOP CATEGORIES ────────────────────────────────────────
+  Widget _topCategories() {
+    if (_topCats.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
+        decoration: _softCard(),
+        child: Row(children: [
+          Icon(Icons.insights_rounded, color: cFaint, size: 20),
+          const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  Text('Piso says',
-                      style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A2E1A))),
-                  const SizedBox(width: 6),
-                  Icon(Icons.eco_rounded, size: 15, color: const Color(0xFF2ECC71)),
-                ]),
-                const SizedBox(height: 3),
-                Text(_pisoTip(),
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12.5, height: 1.35, color: Colors.black45)),
-              ],
-            ),
+            child: Text('No spending logged this week yet.',
+                style:
+                    GoogleFonts.plusJakartaSans(fontSize: 13, color: cSubtext)),
           ),
-        ],
-      ),
-    );
-  }
-
-  // ── NET / REMAINING CARD ──────────────────────────────────
-  Widget _netCard(double remaining, bool over, double progress) {
+        ]),
+      );
+    }
+    final maxVal = _topCats.first.value;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      padding: const EdgeInsets.all(18),
       decoration: _softCard(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Remaining this week',
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A2E1A))),
-              Text(_getWeekRange(),
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11.5, color: Colors.black45)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          AnimatedCount(
-            value: remaining.abs(),
-            prefix: over ? '-₱' : '₱',
-            decimals: 2,
-            style: GoogleFonts.plusJakartaSans(
-                fontSize: 38,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -1.2,
-                color: over ? const Color(0xFFE74C3C) : const Color(0xFF1A2E1A)),
-          ),
-          const SizedBox(height: 14),
-          Stack(
-            children: [
-              Container(
-                height: 8,
-                decoration: BoxDecoration(
-                    color: const Color(0xFF1A2E1A).withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              FractionallySizedBox(
-                widthFactor: progress == 0 ? 0.02 : progress,
-                child: Container(
-                  height: 8,
-                  decoration: BoxDecoration(
-                      color: over ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71),
-                      borderRadius: BorderRadius.circular(8)),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _statPill('Income', _incomeWeek,
-                    Icons.south_west_rounded, const Color(0xFF2ECC71)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _statPill('Spent', _spentWeek,
-                    Icons.north_east_rounded, const Color(0xFFE74C3C)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statPill(String label, double value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 17, color: color),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(_topCats.length, (i) {
+          final entry = _topCats[i];
+          final data = ExpenseCard.categoryData[entry.key] ??
+              ExpenseCard.categoryData['Other']!;
+          final color = data['color'] as Color;
+          final icon = data['icon'] as String;
+          final pct = _weekCatTotal > 0
+              ? (entry.value / _weekCatTotal * 100)
+              : 0.0;
+          final barFrac = maxVal > 0 ? (entry.value / maxVal) : 0.0;
+          return Padding(
+            padding: EdgeInsets.only(bottom: i == _topCats.length - 1 ? 0 : 16),
+            child: Row(
               children: [
-                Text(label,
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: color.withOpacity(0.85))),
-                Text('₱${value.toStringAsFixed(0)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: color)),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                      color: color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Center(
+                      child:
+                          Text(icon, style: const TextStyle(fontSize: 19))),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(entry.key,
+                              style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: cInk)),
+                          Text('₱${entry.value.toStringAsFixed(0)}',
+                              style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: cInk)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Stack(children: [
+                        Container(
+                            height: 7,
+                            decoration: BoxDecoration(
+                                color: cHairline,
+                                borderRadius: BorderRadius.circular(8))),
+                        FractionallySizedBox(
+                          widthFactor: barFrac.clamp(0.04, 1.0),
+                          child: Container(
+                              height: 7,
+                              decoration: BoxDecoration(
+                                  color: color,
+                                  borderRadius: BorderRadius.circular(8))),
+                        ),
+                      ]),
+                      const SizedBox(height: 4),
+                      Text('${pct.toStringAsFixed(0)}% of this week',
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11, color: cSubtext)),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
+          );
+        }),
       ),
     );
   }
@@ -886,9 +873,7 @@ class _HomeTabState extends State<_HomeTab> {
   Widget _sectionLabel(String text) {
     return Text(text,
         style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF1A2E1A)));
+            fontSize: 14, fontWeight: FontWeight.w800, color: cInk));
   }
 
   // ── MONEY CARDS (budget + savings) ────────────────────────
@@ -901,7 +886,7 @@ class _HomeTabState extends State<_HomeTab> {
       children: [
         Expanded(
           child: _miniCard(
-            ring: _ringStat(weekProgress, const Color(0xFF2ECC71)),
+            ring: _ringStat(weekProgress, cAccent),
             title: 'Budget',
             value: '₱${_spentWeek.toStringAsFixed(0)}',
             sub: 'of ₱${_weeklyBudget.toStringAsFixed(0)}',
@@ -912,7 +897,7 @@ class _HomeTabState extends State<_HomeTab> {
         const SizedBox(width: 12),
         Expanded(
           child: _miniCard(
-            ring: _ringStat(savingsProgress, const Color(0xFF2ECC71)),
+            ring: _ringStat(savingsProgress, cAccent),
             title: 'Savings',
             value: '₱${saved.toStringAsFixed(0)}',
             sub: 'of ₱${target.toStringAsFixed(0)}',
@@ -943,8 +928,7 @@ class _HomeTabState extends State<_HomeTab> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ring,
-                Icon(Icons.chevron_right_rounded,
-                    size: 18, color: Colors.black45),
+                Icon(Icons.chevron_right_rounded, size: 18, color: cSubtext),
               ],
             ),
             const SizedBox(height: 12),
@@ -952,16 +936,14 @@ class _HomeTabState extends State<_HomeTab> {
                 style: GoogleFonts.plusJakartaSans(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black45)),
+                    color: cSubtext)),
             const SizedBox(height: 2),
             Text(value,
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF1A2E1A))),
+                    fontSize: 19, fontWeight: FontWeight.w800, color: cInk)),
             Text(sub,
-                style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11.5, color: Colors.black45)),
+                style:
+                    GoogleFonts.plusJakartaSans(fontSize: 11.5, color: cSubtext)),
           ],
         ),
       ),
@@ -987,44 +969,13 @@ class _HomeTabState extends State<_HomeTab> {
           ),
           Text('${(progress * 100).toStringAsFixed(0)}%',
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1A2E1A))),
+                  fontSize: 11, fontWeight: FontWeight.w800, color: cInk)),
         ],
       ),
     );
   }
 
-  // ── SEARCH BAR ────────────────────────────────────────────
-  Widget _searchBar() {
-    return GestureDetector(
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => const ExpensesScreen())),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: _softCard(),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, color: Colors.black45, size: 20),
-            const SizedBox(width: 10),
-            Text('Search transactions',
-                style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14, color: Colors.black45)),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                  color: const Color(0xFF2ECC71).withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Icon(Icons.tune_rounded, color: const Color(0xFF2ECC71), size: 18),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── RECAP CARD (preserved logic) ──────────────────────────
+  // ── RECAP CARD ────────────────────────────────────────────
   Widget _recapCard() {
     final recap = _recap!;
     final saved = ((recap['leftover'] ?? 0.0) as num).toDouble();
@@ -1034,7 +985,7 @@ class _HomeTabState extends State<_HomeTab> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [const Color(0xFF12280F), const Color(0xFF2D5A2D)],
+          colors: cHeroGrad,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -1064,43 +1015,41 @@ class _HomeTabState extends State<_HomeTab> {
               style: GoogleFonts.plusJakartaSans(
                   color: Colors.white, fontSize: 13, height: 1.35)),
           const SizedBox(height: 14),
-          Row(
-            children: [
+          Row(children: [
+            GestureDetector(
+              onTap: _dismissRecap,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(12)),
+                child: Text(canRoll ? 'Skip' : 'Got it',
+                    style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14)),
+              ),
+            ),
+            if (canRoll) ...[
+              const SizedBox(width: 10),
               GestureDetector(
-                onTap: _dismissRecap,
+                onTap: _claimRecap,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 9),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                   decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12)),
-                  child: Text(canRoll ? 'Skip' : 'Got it',
+                  child: Text('Move to savings',
                       style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1A2E1A),
+                          fontWeight: FontWeight.w800,
                           fontSize: 14)),
                 ),
               ),
-              if (canRoll) ...[
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _claimRecap,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 9),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Text('Move to savings',
-                        style: GoogleFonts.plusJakartaSans(
-                            color: const Color(0xFF1A2E1A),
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14)),
-                  ),
-                ),
-              ],
             ],
-          ),
+          ]),
         ],
       ),
     );
@@ -1117,22 +1066,20 @@ class _HomeTabState extends State<_HomeTab> {
           const SizedBox(height: 14),
           Text('No expenses yet',
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1A2E1A))),
+                  fontSize: 15, fontWeight: FontWeight.w800, color: cInk)),
           const SizedBox(height: 6),
           Text('Tap the + button to log your first one.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13, color: Colors.black45)),
+              style: GoogleFonts.plusJakartaSans(fontSize: 13, color: cSubtext)),
         ],
       ),
     );
   }
 
   BoxDecoration _softCard() => BoxDecoration(
-        color: Colors.white,
+        color: cSurface,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cHairline),
         boxShadow: [
           BoxShadow(
               color: Colors.black.withOpacity(0.04),

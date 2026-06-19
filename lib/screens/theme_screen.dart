@@ -1,165 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
-import '../widgets/app_header.dart';
+import '../theme/theme_controller.dart';
 
-class ThemeScreen extends StatelessWidget {
+class ThemeScreen extends StatefulWidget {
   const ThemeScreen({super.key});
 
   @override
+  State<ThemeScreen> createState() => _ThemeScreenState();
+}
+
+class _ThemeScreenState extends State<ThemeScreen> {
+  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: themeController,
-      builder: (context, _) {
-        final p = AppPalette.of(context);
-        return Scaffold(
-          backgroundColor: p.bg,
-          appBar: appHeader(context, 'Appearance'),
-          body: phoneWrap(ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 40),
-            children: [
-              // Live preview
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                height: 130,
+    return Scaffold(
+      backgroundColor: cBg,
+      appBar: AppBar(
+        backgroundColor: cBg,
+        elevation: 0,
+        foregroundColor: cInk,
+        title: Text('Appearance',
+            style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800, color: cInk)),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 40),
+        children: [
+          // Live preview
+          Container(
+            height: 120,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: cHeroGrad,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [p.grad1, p.grad2],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    color: cAccent, borderRadius: BorderRadius.circular(30)),
+                child: Text('Preview',
+                    style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text('Accent',
+              style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14, fontWeight: FontWeight.w800, color: cInk)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: List.generate(kAccents.length, (i) {
+              final p = kAccents[i];
+              final selected = themeController.accentIndex == i;
+              return GestureDetector(
+                onTap: () {
+                  themeController.setAccent(i);
+                  setState(() {});
+                },
+                child: Container(
+                  width: 96,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: cSurface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                        color: selected ? p.accent : cHairline,
+                        width: selected ? 2 : 1),
                   ),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Preview',
-                        style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white70, fontSize: 12)),
-                    Text('₱1,250 left this week',
-                        style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: p.accent,
-                        borderRadius: BorderRadius.circular(20),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                            color: p.accent, shape: BoxShape.circle),
+                        child: selected
+                            ? const Icon(Icons.check_rounded,
+                                color: Colors.white, size: 18)
+                            : null,
                       ),
-                      child: Text('Accent',
+                      const SizedBox(height: 8),
+                      Text(p.name,
                           style: GoogleFonts.plusJakartaSans(
-                              color: Colors.white,
+                              fontSize: 12.5,
                               fontWeight: FontWeight.w700,
-                              fontSize: 12)),
-                    ),
-                  ],
+                              color: cInk)),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 22),
-              Text('Theme',
+              );
+            }),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+                color: cSurface, borderRadius: BorderRadius.circular(16)),
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              activeColor: cAccent,
+              title: Text('Dark mode',
                   style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                      color: p.ink)),
-              const SizedBox(height: 12),
-              GridView.count(
-                crossAxisCount: 3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.15,
-                children: List.generate(kThemePresets.length, (i) {
-                  final preset = kThemePresets[i];
-                  final selected = themeController.presetIndex == i;
-                  return GestureDetector(
-                    onTap: () => themeController.setPreset(i),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        color: p.surface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: selected
-                              ? preset.accent
-                              : Colors.transparent,
-                          width: 3,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6)
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [preset.grad1, preset.grad2],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                    color: preset.accent,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.white,
-                                        width: 2)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(preset.name,
-                              style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: p.ink)),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 22),
-              Container(
-                decoration: BoxDecoration(
-                  color: p.surface,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: SwitchListTile(
-                  activeColor: p.accent,
-                  title: Text('Dark mode',
-                      style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14.5,
-                          color: p.ink)),
-                  subtitle: Text(
-                      'Rolling out across screens — core screens supported',
-                      style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11.5, color: p.subtext)),
-                  value: themeController.isDark,
-                  onChanged: (v) => themeController.setDark(v),
-                ),
-              ),
-            ],
-          )),
-        );
-      },
+                      fontWeight: FontWeight.w700, color: cInk)),
+              subtitle: Text('Easier on the eyes at night',
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12.5, color: cSubtext)),
+              value: themeController.dark,
+              onChanged: (v) {
+                themeController.setDark(v);
+                setState(() {});
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Dark mode currently styles the Home dashboard and navigation. '
+            'Other screens are being rolled over to it.',
+            style: GoogleFonts.plusJakartaSans(
+                fontSize: 12, color: cSubtext, height: 1.4),
+          ),
+        ],
+      ),
     );
   }
 }

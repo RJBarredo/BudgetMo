@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/expense.dart';
+import '../theme/theme_controller.dart';
 
 class ExpenseCard extends StatelessWidget {
   final Expense expense;
@@ -25,19 +26,29 @@ class ExpenseCard extends StatelessWidget {
     'Other': {'icon': '📦', 'color': Color(0xFF95A5A6)},
   };
 
+  String _dateLabel(DateTime d) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final that = DateTime(d.year, d.month, d.day);
+    final diff = today.difference(that).inDays;
+    final time = DateFormat('h:mm a').format(d);
+    if (diff == 0) return 'Today · $time';
+    if (diff == 1) return 'Yesterday · $time';
+    return '${DateFormat('MMM d').format(d)} · $time';
+  }
+
   @override
   Widget build(BuildContext context) {
     final cat = categoryData[expense.category] ?? categoryData['Other']!;
     final color = cat['color'] as Color;
     final icon = cat['icon'] as String;
-    final timeStr = DateFormat('h:mm a').format(expense.date);
 
     return Dismissible(
       key: Key(expense.date.toString() + expense.title + expense.amount.toString()),
       direction: DismissDirection.endToStart,
       confirmDismiss: (_) async {
         onDelete?.call();
-        return false; // Let the parent handle deletion
+        return false;
       },
       background: Container(
         alignment: Alignment.centerRight,
@@ -45,7 +56,7 @@ class ExpenseCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: const Color(0xFFE74C3C),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -53,22 +64,23 @@ class ExpenseCard extends StatelessWidget {
             Icon(Icons.delete_rounded, color: Colors.white),
             SizedBox(width: 8),
             Text('Delete',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600)),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             SizedBox(width: 16),
           ],
         ),
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          color: cSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cHairline),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
@@ -77,39 +89,41 @@ class ExpenseCard extends StatelessWidget {
           children: [
             // Category icon
             Container(
-              width: 44,
-              height: 44,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
+                color: color.withOpacity(0.13),
+                borderRadius: BorderRadius.circular(13),
               ),
               child: Center(
-                child: Text(icon, style: const TextStyle(fontSize: 22)),
+                child: Text(icon, style: const TextStyle(fontSize: 23)),
               ),
             ),
             const SizedBox(width: 12),
 
-            // Title and details
+            // Title + meta
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     expense.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: const Color(0xFF1A2E1A)),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14.5,
+                        color: cInk),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 5),
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 2),
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          color: color.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(7),
                         ),
                         child: Text(
                           expense.category,
@@ -119,25 +133,30 @@ class ExpenseCard extends StatelessWidget {
                               fontWeight: FontWeight.w700),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        timeStr,
-                        style: GoogleFonts.plusJakartaSans(
-                            fontSize: 11, color: Colors.black38),
-                      ),
-                      if (expense.note.isNotEmpty) ...[
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Text(
-                            '· ${expense.note}',
-                            style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11, color: Colors.black38),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      const SizedBox(width: 7),
+                      Flexible(
+                        child: Text(
+                          _dateLabel(expense.date),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5, color: cSubtext),
                         ),
-                      ],
+                      ),
                     ],
                   ),
+                  if (expense.note.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      expense.note,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          fontStyle: FontStyle.italic,
+                          color: cFaint),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -149,10 +168,10 @@ class ExpenseCard extends StatelessWidget {
                 child: Container(
                   width: 38,
                   height: 38,
-                  margin: const EdgeInsets.only(right: 10),
+                  margin: const EdgeInsets.only(right: 10, left: 6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFE6ECE8)),
+                    border: Border.all(color: cHairline),
                     image: DecorationImage(
                       image: MemoryImage(base64Decode(expense.receipt!)),
                       fit: BoxFit.cover,
@@ -162,24 +181,24 @@ class ExpenseCard extends StatelessWidget {
               ),
             ],
 
-            // Amount + edit button
+            // Amount + edit
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '₱${expense.amount.toStringAsFixed(2)}',
+                  '-₱${expense.amount.toStringAsFixed(2)}',
                   style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15.5,
                       color: const Color(0xFFE74C3C)),
                 ),
                 if (onEdit != null)
                   GestureDetector(
                     onTap: onEdit,
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 4),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 5),
                       child: Icon(Icons.edit_rounded,
-                          size: 16, color: Colors.black26),
+                          size: 16, color: cFaint),
                     ),
                   ),
               ],

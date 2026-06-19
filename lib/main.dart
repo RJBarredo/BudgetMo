@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'screens/splash_screen.dart';
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
+import 'theme/theme_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ void main() async {
       );
 
   await StorageService.init();
+  themeController.load();
   await NotificationService.init();
   if (StorageService.getReminderEnabled()) {
     await NotificationService.scheduleDaily(
@@ -39,16 +41,14 @@ class BudgetTrackerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'BudgetMo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2ECC71)),
-        scaffoldBackgroundColor: const Color(0xFFF5F7F5),
-        textTheme: GoogleFonts.plusJakartaSansTextTheme(),
+    return AnimatedBuilder(
+      animation: themeController,
+      builder: (context, _) => MaterialApp(
+        title: 'BudgetMo',
+        debugShowCheckedModeBanner: false,
+        theme: buildAppTheme(),
+        home: const SplashScreen(),
       ),
-      home: const SplashScreen(),
     );
   }
 }
