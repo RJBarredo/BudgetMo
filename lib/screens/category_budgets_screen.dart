@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/expense_category.dart';
 import '../services/storage_service.dart';
+import '../theme/theme_controller.dart';
 
 class CategoryBudgetsScreen extends StatefulWidget {
   const CategoryBudgetsScreen({super.key});
@@ -64,7 +65,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen> {
                       color: Colors.black45))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2ECC71),
+                backgroundColor: cAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10))),
@@ -86,9 +87,9 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F7F5),
+        backgroundColor: cBg,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,

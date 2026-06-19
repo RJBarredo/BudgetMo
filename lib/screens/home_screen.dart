@@ -88,8 +88,11 @@ class _HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<_HomeTab> {
   double _weeklyBudget = 1500;
+  double _dailyBudget = 0;
+  double _monthlyBudget = 0;
   double _spentWeek = 0;
   double _spentToday = 0;
+  double _spentMonth = 0;
   double _incomeWeek = 0;
   Map<String, dynamic>? _recap;
   List<Expense> _recent = [];
@@ -132,8 +135,11 @@ class _HomeTabState extends State<_HomeTab> {
       _userName = box.get('userName', defaultValue: 'there');
       _userAvatar = box.get('userAvatar', defaultValue: UserAvatars.defaultId);
       _weeklyBudget = StorageService.getWeeklyBudget();
+      _dailyBudget = StorageService.getDailyBudget();
+      _monthlyBudget = StorageService.getMonthlyBudget();
       _spentWeek = StorageService.getTotalSpentThisWeek();
       _spentToday = StorageService.getTotalSpentToday();
+      _spentMonth = StorageService.getTotalSpentThisMonth();
       _incomeWeek = StorageService.getTotalIncomeThisWeek();
       _recap = StorageService.getPendingRecap();
       _recent = StorageService.getExpenses().take(5).toList();
@@ -279,64 +285,237 @@ class _HomeTabState extends State<_HomeTab> {
     return RefreshIndicator(
       color: cAccent,
       onRefresh: () async => _load(),
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          _greenHero(topPad, weekRemaining, over, weekProgress),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 36),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                _todayStrip(),
-                const SizedBox(height: 16),
-                _pisoTipCard(over),
-                const SizedBox(height: 16),
-                _flowCard(over),
-                if (_recap != null) ...[
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: ClampingScrollPhysics()),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _greenHero(topPad, weekRemaining, over, weekProgress),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   const SizedBox(height: 16),
-                  _recapCard(),
-                ],
-                const SizedBox(height: 24),
-                _quickLogSection(),
-                const SizedBox(height: 24),
-                _sectionLabel('Where it went'),
-                const SizedBox(height: 12),
-                _topCategories(),
-                const SizedBox(height: 24),
-                _sectionLabel('Your money'),
-                const SizedBox(height: 12),
-                _moneyCards(weekProgress),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _sectionLabel('Recent activity'),
-                    GestureDetector(
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const ExpensesScreen())),
-                      child: Row(children: [
-                        Text('See all',
-                            style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                color: cAccent,
-                                fontWeight: FontWeight.w700)),
-                        Icon(Icons.chevron_right_rounded, size: 18, color: cAccent),
-                      ]),
-                    ),
+                  _todayStrip(),
+                  const SizedBox(height: 16),
+                  _pisoTipCard(over),
+                  const SizedBox(height: 16),
+                  _flowCard(over),
+                  if (_recap != null) ...[
+                    const SizedBox(height: 16),
+                    _recapCard(),
                   ],
-                ),
-                const SizedBox(height: 12),
-                if (_recent.isEmpty)
-                  _emptyState()
-                else
-                  ..._recent.map((e) => ExpenseCard(expense: e)),
-              ],
+                  const SizedBox(height: 24),
+                  _quickLogSection(),
+                  const SizedBox(height: 24),
+                  _sectionLabel('Budgets'),
+                  const SizedBox(height: 12),
+                  _budgetPeriods(),
+                  const SizedBox(height: 24),
+                  _sectionLabel('Where it went'),
+                  const SizedBox(height: 12),
+                  _topCategories(),
+                  const SizedBox(height: 24),
+                  _sectionLabel('Your money'),
+                  const SizedBox(height: 12),
+                  _moneyCards(weekProgress),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _sectionLabel('Recent activity'),
+                      GestureDetector(
+                        onTap: () => Navigator.push(context,
+                            MaterialPageRoute(
+                                builder: (_) => const ExpensesScreen())),
+                        child: Row(children: [
+                          Text('See all',
+                              style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  color: cAccent,
+                                  fontWeight: FontWeight.w700)),
+                          Icon(Icons.chevron_right_rounded,
+                              size: 18, color: cAccent),
+                        ]),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  if (_recent.isEmpty)
+                    _emptyState()
+                  else
+                    ..._recent.map(_recentRow),
+                ],
+              ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── RECENT ROW (lightweight, no swipe — full management on Expenses) ──
+  Widget _recentRow(Expense e) {
+    final data = ExpenseCard.categoryData[e.category] ??
+        ExpenseCard.categoryData['Other']!;
+    final color = data['color'] as Color;
+    final icon = data['icon'] as String;
+    final now = DateTime.now();
+    final that = DateTime(e.date.year, e.date.month, e.date.day);
+    final diff = DateTime(now.year, now.month, now.day).difference(that).inDays;
+    final timeStr = DateFormat('h:mm a').format(e.date);
+    final dateLabel = diff == 0
+        ? 'Today · $timeStr'
+        : diff == 1
+            ? 'Yesterday · $timeStr'
+            : '${DateFormat('MMM d').format(e.date)} · $timeStr';
+    return GestureDetector(
+      onTap: () => Navigator.push(context,
+          MaterialPageRoute(builder: (_) => const ExpensesScreen())),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: _softCard(),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                  color: color.withOpacity(0.13),
+                  borderRadius: BorderRadius.circular(13)),
+              child: Center(
+                  child: Text(icon, style: const TextStyle(fontSize: 22))),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(e.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14.5,
+                          color: cInk)),
+                  const SizedBox(height: 4),
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                          color: color.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(7)),
+                      child: Text(e.category,
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10,
+                              color: color,
+                              fontWeight: FontWeight.w700)),
+                    ),
+                    const SizedBox(width: 7),
+                    Flexible(
+                      child: Text(dateLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5, color: cSubtext)),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text('-₱${e.amount.toStringAsFixed(2)}',
+                style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15.5,
+                    color: const Color(0xFFE74C3C))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── BUDGET PERIODS (daily / weekly / monthly) ─────────────
+  Widget _budgetPeriods() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _softCard(),
+      child: Column(
+        children: [
+          _budgetRow('Daily', _spentToday, _dailyBudget, Icons.today_rounded),
+          const SizedBox(height: 16),
+          _budgetRow('Weekly', _spentWeek, _weeklyBudget,
+              Icons.date_range_rounded),
+          const SizedBox(height: 16),
+          _budgetRow('Monthly', _spentMonth, _monthlyBudget,
+              Icons.calendar_month_rounded),
         ],
       ),
+    );
+  }
+
+  Widget _budgetRow(String label, double spent, double budget, IconData icon) {
+    final hasBudget = budget > 0;
+    final frac = hasBudget ? (spent / budget).clamp(0.0, 1.0) : 0.0;
+    final over = hasBudget && spent > budget;
+    final barColor = over ? const Color(0xFFE74C3C) : cAccent;
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+              color: cAccent.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(11)),
+          child: Icon(icon, size: 19, color: cAccent),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(label,
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: cInk)),
+                  Text(
+                      hasBudget
+                          ? '₱${spent.toStringAsFixed(0)} / ₱${budget.toStringAsFixed(0)}'
+                          : 'No budget set',
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: over ? const Color(0xFFE74C3C) : cSubtext)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Stack(children: [
+                Container(
+                    height: 7,
+                    decoration: BoxDecoration(
+                        color: cHairline,
+                        borderRadius: BorderRadius.circular(8))),
+                FractionallySizedBox(
+                  widthFactor: hasBudget ? frac.clamp(0.02, 1.0) : 0.0,
+                  child: Container(
+                      height: 7,
+                      decoration: BoxDecoration(
+                          color: barColor,
+                          borderRadius: BorderRadius.circular(8))),
+                ),
+              ]),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -881,26 +1060,41 @@ class _HomeTabState extends State<_HomeTab> {
     final saved = ((_savings['saved'] ?? 0.0) as num).toDouble();
     final target = ((_savings['target'] ?? 3000.0) as num).toDouble();
     final savingsProgress = target > 0 ? (saved / target).clamp(0.0, 1.0) : 0.0;
+    final budgetLeft = _weeklyBudget - _spentWeek;
+    final toGo = target - saved;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: _miniCard(
-            ring: _ringStat(weekProgress, cAccent),
+          child: _moneyCard(
+            icon: Icons.account_balance_wallet_rounded,
+            iconColor: const Color(0xFF3498DB),
             title: 'Budget',
+            progress: weekProgress,
+            ringColor: budgetLeft < 0 ? const Color(0xFFE74C3C) : cAccent,
             value: '₱${_spentWeek.toStringAsFixed(0)}',
-            sub: 'of ₱${_weeklyBudget.toStringAsFixed(0)}',
+            sub: 'of ₱${_weeklyBudget.toStringAsFixed(0)} this week',
+            footLabel: budgetLeft < 0 ? 'Over by' : 'Left',
+            footValue: '₱${budgetLeft.abs().toStringAsFixed(0)}',
+            footColor:
+                budgetLeft < 0 ? const Color(0xFFE74C3C) : const Color(0xFF2ECC71),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const ChartsScreen())),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _miniCard(
-            ring: _ringStat(savingsProgress, cAccent),
+          child: _moneyCard(
+            icon: Icons.savings_rounded,
+            iconColor: const Color(0xFF9B59B6),
             title: 'Savings',
+            progress: savingsProgress,
+            ringColor: const Color(0xFF9B59B6),
             value: '₱${saved.toStringAsFixed(0)}',
-            sub: 'of ₱${target.toStringAsFixed(0)}',
+            sub: 'of ₱${target.toStringAsFixed(0)} goal',
+            footLabel: toGo > 0 ? 'To go' : 'Reached',
+            footValue: toGo > 0 ? '₱${toGo.toStringAsFixed(0)}' : '🎉',
+            footColor: const Color(0xFF9B59B6),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SavingsScreen())),
           ),
@@ -909,11 +1103,17 @@ class _HomeTabState extends State<_HomeTab> {
     );
   }
 
-  Widget _miniCard({
-    required Widget ring,
+  Widget _moneyCard({
+    required IconData icon,
+    required Color iconColor,
     required String title,
+    required double progress,
+    required Color ringColor,
     required String value,
     required String sub,
+    required String footLabel,
+    required String footValue,
+    required Color footColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -927,49 +1127,87 @@ class _HomeTabState extends State<_HomeTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ring,
-                Icon(Icons.chevron_right_rounded, size: 18, color: cSubtext),
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                      color: iconColor.withOpacity(0.13),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Icon(icon, size: 18, color: iconColor),
+                ),
+                Text(title,
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: cSubtext)),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(title,
-                style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: cSubtext)),
-            const SizedBox(height: 2),
+            const SizedBox(height: 14),
+            Center(child: _bigRing(progress, ringColor)),
+            const SizedBox(height: 14),
             Text(value,
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 19, fontWeight: FontWeight.w800, color: cInk)),
+                    fontSize: 20, fontWeight: FontWeight.w800, color: cInk)),
             Text(sub,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style:
-                    GoogleFonts.plusJakartaSans(fontSize: 11.5, color: cSubtext)),
+                    GoogleFonts.plusJakartaSans(fontSize: 11, color: cSubtext)),
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 10),
+              decoration: BoxDecoration(
+                  color: footColor.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(10)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(footLabel,
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: footColor)),
+                  Text(footValue,
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: footColor)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _ringStat(double progress, Color color) {
+  Widget _bigRing(double progress, Color color) {
     return SizedBox(
-      width: 44,
-      height: 44,
+      width: 70,
+      height: 70,
       child: Stack(
         alignment: Alignment.center,
         children: [
           SizedBox(
-            width: 44,
-            height: 44,
-            child: CircularProgressIndicator(
-              value: progress == 0 ? 0.02 : progress,
-              strokeWidth: 5,
-              backgroundColor: color.withOpacity(0.14),
-              valueColor: AlwaysStoppedAnimation(color),
+            width: 70,
+            height: 70,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: progress == 0 ? 0.02 : progress),
+              duration: const Duration(milliseconds: 900),
+              curve: Curves.easeOutCubic,
+              builder: (_, val, __) => CircularProgressIndicator(
+                value: val,
+                strokeWidth: 7,
+                strokeCap: StrokeCap.round,
+                backgroundColor: color.withOpacity(0.13),
+                valueColor: AlwaysStoppedAnimation(color),
+              ),
             ),
           ),
           Text('${(progress * 100).toStringAsFixed(0)}%',
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11, fontWeight: FontWeight.w800, color: cInk)),
+                  fontSize: 14, fontWeight: FontWeight.w800, color: cInk)),
         ],
       ),
     );

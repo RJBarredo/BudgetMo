@@ -5,12 +5,13 @@ import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
+import '../theme/theme_controller.dart';
 
 class IntegrityScreen extends StatelessWidget {
   const IntegrityScreen({super.key});
 
   static Color get ink => const Color(0xFF1A2E1A);
-  static Color get green => const Color(0xFF2ECC71);
+  static Color get green => cAccent;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class IntegrityScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: appHeader(context, 'Record & integrity'),
       body: phoneWrap(ListView(
         padding: const EdgeInsets.fromLTRB(18, 14, 18, 40),

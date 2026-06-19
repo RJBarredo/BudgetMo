@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
+import '../theme/theme_controller.dart';
 
 class SavingsScreen extends StatefulWidget {
   const SavingsScreen({super.key});
@@ -89,7 +90,7 @@ class _SavingsScreenState extends State<SavingsScreen>
         content: Text('Goal updated!',
             style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w600)),
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: cAccent,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)),
@@ -127,7 +128,7 @@ class _SavingsScreenState extends State<SavingsScreen>
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2ECC71),
+              backgroundColor: cAccent,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -200,7 +201,7 @@ class _SavingsScreenState extends State<SavingsScreen>
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: const Color(0xFFF5F7F5),
+          backgroundColor: cBg,
           appBar: appHeader(context, 'Savings', actions: [
             IconButton(
               onPressed: _addNewGoal,
@@ -283,7 +284,7 @@ class _SavingsScreenState extends State<SavingsScreen>
             children: [
               _summaryItem(
                   'This Week', '₱${spentWeek.toStringAsFixed(0)}',
-                  const Color(0xFF2ECC71)),
+                  cAccent),
               _summaryDivider(),
               _summaryItem(
                   'This Month', '₱${spentMonth.toStringAsFixed(0)}',
@@ -476,7 +477,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                       color: Colors.white70, fontSize: 13)),
               Text('₱${target.toStringAsFixed(2)} goal',
                   style: GoogleFonts.plusJakartaSans(
-                      color: const Color(0xFF2ECC71),
+                      color: cAccent,
                       fontSize: 13,
                       fontWeight: FontWeight.w700)),
             ],
@@ -504,7 +505,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                 decoration: BoxDecoration(
                   color: isComplete
                       ? Colors.white
-                      : const Color(0xFF2ECC71),
+                      : cAccent,
                   borderRadius: BorderRadius.circular(7),
                 ),
               ),
@@ -521,7 +522,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                 style: GoogleFonts.plusJakartaSans(
                     color: isComplete
                         ? Colors.white
-                        : const Color(0xFF2ECC71),
+                        : cAccent,
                     fontWeight: FontWeight.w700,
                     fontSize: 13),
               ),
@@ -577,7 +578,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2ECC71)
+                  color: cAccent
                       .withOpacity(0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -595,10 +596,10 @@ class _SavingsScreenState extends State<SavingsScreen>
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F7F5),
+              color: cBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: const Color(0xFF2ECC71)
+                  color: cAccent
                       .withOpacity(0.3)),
             ),
             child: TextField(
@@ -619,7 +620,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                 prefixStyle: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF2ECC71)),
+                    color: cAccent),
               ),
             ),
           ),
@@ -638,14 +639,14 @@ class _SavingsScreenState extends State<SavingsScreen>
                         vertical: 8),
                     decoration: BoxDecoration(
                       color: _addCtrl.text == v
-                          ? const Color(0xFF2ECC71)
+                          ? cAccent
                           .withOpacity(0.15)
-                          : const Color(0xFFF5F7F5),
+                          : cBg,
                       borderRadius:
                       BorderRadius.circular(8),
                       border: Border.all(
                           color: _addCtrl.text == v
-                              ? const Color(0xFF2ECC71)
+                              ? cAccent
                               : Colors.transparent),
                     ),
                     child: Text('₱$v',
@@ -654,7 +655,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: _addCtrl.text == v
-                                ? const Color(0xFF2ECC71)
+                                ? cAccent
                                 : Colors.black45)),
                   ),
                 ),
@@ -668,7 +669,7 @@ class _SavingsScreenState extends State<SavingsScreen>
             child: ElevatedButton(
               onPressed: _addSavings,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2ECC71),
+                backgroundColor: cAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -753,7 +754,7 @@ class _SavingsScreenState extends State<SavingsScreen>
                   decoration: BoxDecoration(
                     color: _nameCtrl.text == label
                         ? const Color(0xFF1A2E1A)
-                        : const Color(0xFFF5F7F5),
+                        : cBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(v,
@@ -782,7 +783,7 @@ class _SavingsScreenState extends State<SavingsScreen>
               child: Text('Update Goal',
                   style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF2ECC71),
+                      color: cAccent,
                       fontSize: 15)),
             ),
           ),
@@ -806,7 +807,7 @@ class _SavingsScreenState extends State<SavingsScreen>
       {bool isNumber = false}) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F7F5),
+        color: cBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.black.withOpacity(0.08)),
       ),
@@ -855,7 +856,7 @@ class _ConfettiPainter extends CustomPainter {
       'x': (i * 37.3) % 1.0,
       'speed': 0.3 + (i * 0.013) % 0.7,
       'color': [
-        const Color(0xFF2ECC71),
+        cAccent,
         const Color(0xFFF39C12),
         const Color(0xFF3498DB),
         const Color(0xFFE74C3C),

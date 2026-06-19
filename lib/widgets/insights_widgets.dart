@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/storage_service.dart';
 import '../models/expense.dart';
+import '../theme/theme_controller.dart';
 
 // ─── INSIGHTS CARD ───────────────────────────────────────────────────────────
 
@@ -21,7 +22,7 @@ class InsightsCard extends StatelessWidget {
     if (byCategory.isEmpty) {
       return _InsightData(
         text: "Start logging your expenses to get personalized spending insights!",
-        color: const Color(0xFF2ECC71),
+        color: cAccent,
         icon: Icons.lightbulb_rounded,
       );
     }
@@ -65,7 +66,7 @@ class InsightsCard extends StatelessWidget {
     if (progress < 0.5) {
       return _InsightData(
         text: "Great job! You're on track this week. You've only used ${(progress * 100).toStringAsFixed(0)}% of your budget.",
-        color: const Color(0xFF2ECC71),
+        color: cAccent,
         icon: Icons.thumb_up_rounded,
       );
     }
@@ -78,7 +79,7 @@ class InsightsCard extends StatelessWidget {
     }
     return _InsightData(
       text: "You're managing your budget well this week. Keep logging your expenses!",
-      color: const Color(0xFF2ECC71),
+      color: cAccent,
       icon: Icons.check_circle_rounded,
     );
   }
@@ -305,7 +306,7 @@ class QuickLogCard extends StatelessWidget {
           content: Text('${t['title']} logged — ₱${amount.toStringAsFixed(0)}',
               style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w600)),
-          backgroundColor: const Color(0xFF2ECC71),
+          backgroundColor: cAccent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10)),
@@ -363,7 +364,7 @@ class QuickLogCard extends StatelessWidget {
                 prefixStyle: GoogleFonts.plusJakartaSans(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF2ECC71)),
+                    color: cAccent),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12)),
                 contentPadding: const EdgeInsets.symmetric(
@@ -382,7 +383,7 @@ class QuickLogCard extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2ECC71),
+              backgroundColor: cAccent,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -466,7 +467,7 @@ class QuickLogCard extends StatelessWidget {
                           style:
                           ElevatedButton.styleFrom(
                             backgroundColor:
-                            const Color(0xFF2ECC71),
+                            cAccent,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                                 borderRadius:

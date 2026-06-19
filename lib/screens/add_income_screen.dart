@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/income.dart';
 import '../services/storage_service.dart';
+import '../theme/theme_controller.dart';
 
 class AddIncomeScreen extends StatefulWidget {
   final Income? existingIncome;
@@ -131,9 +132,9 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F7F5),
+        backgroundColor: cBg,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
@@ -176,7 +177,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
               child: ElevatedButton(
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2ECC71),
+                  backgroundColor: cAccent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),

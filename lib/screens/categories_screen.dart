@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/expense_category.dart';
 import '../services/storage_service.dart';
+import '../theme/theme_controller.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -72,13 +73,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: sel
-                              ? const Color(0xFF2ECC71)
+                              ? cAccent
                                   .withOpacity(0.18)
                               : const Color(0xFFF2F4F2),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                               color: sel
-                                  ? const Color(0xFF2ECC71)
+                                  ? cAccent
                                   : Colors.transparent,
                               width: 2),
                         ),
@@ -136,7 +137,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2ECC71),
+                  backgroundColor: cAccent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10))),
@@ -204,9 +205,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F7F5),
+        backgroundColor: cBg,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
@@ -272,7 +273,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _editDialog(),
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: cAccent,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
         label: Text('New',

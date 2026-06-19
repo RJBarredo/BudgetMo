@@ -5,6 +5,7 @@ import '../services/storage_service.dart';
 import '../models/expense.dart';
 import '../widgets/animations.dart';
 import '../widgets/app_header.dart';
+import '../theme/theme_controller.dart';
 
 class ChartsScreen extends StatefulWidget {
   const ChartsScreen({super.key});
@@ -54,7 +55,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
     final hasData = _allExpenses.isNotEmpty || income > 0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: appHeader(context, 'Charts'),
       body: phoneWrap(!hasData
           ? Center(
@@ -246,7 +247,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
       ),
       child: Column(
         children: [
-          _compRow('Income', income, maxVal, const Color(0xFF2ECC71)),
+          _compRow('Income', income, maxVal, cAccent),
           const SizedBox(height: 16),
           _compRow('Spending', spent, maxVal, const Color(0xFFE74C3C)),
         ],
@@ -432,7 +433,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                 barRods: [
                   BarChartRodData(
                     toY: values[entry.key],
-                    color: const Color(0xFF2ECC71),
+                    color: cAccent,
                     width: 18,
                     borderRadius: BorderRadius.circular(6),
                     backDrawRodData: BackgroundBarChartRodData(

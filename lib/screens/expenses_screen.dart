@@ -6,6 +6,7 @@ import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
 import '../widgets/expense_card.dart';
 import 'add_expense_screen.dart';
+import '../theme/theme_controller.dart';
 
 class ExpensesScreen extends StatefulWidget {
   const ExpensesScreen({super.key});
@@ -124,7 +125,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: appHeader(context, 'Expenses', actions: [
         if (_expenses.isNotEmpty)
           Padding(
@@ -357,7 +358,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   const AddExpenseScreen()));
           if (result == true) _load();
         },
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: cAccent,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16)),
@@ -375,7 +376,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             width: 90,
             height: 90,
             decoration: BoxDecoration(
-              color: const Color(0xFF2ECC71).withOpacity(0.1),
+              color: cAccent.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.receipt_long_rounded,
@@ -418,7 +419,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                       fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                const Color(0xFF2ECC71),
+                cAccent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius:

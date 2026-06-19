@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/storage_service.dart';
 import '../services/permission_service.dart';
+import '../theme/theme_controller.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   final Expense? existingExpense;
@@ -245,9 +246,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F7F5),
+        backgroundColor: cBg,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
@@ -290,7 +291,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               child: ElevatedButton(
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2ECC71),
+                  backgroundColor: cAccent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),

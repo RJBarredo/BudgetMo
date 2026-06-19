@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
 import '../widgets/mascot_advisor.dart';
+import '../theme/theme_controller.dart';
 
 class ShareCardScreen extends StatelessWidget {
   const ShareCardScreen({super.key});
@@ -53,7 +54,7 @@ class ShareCardScreen extends StatelessWidget {
         '${streak >= 2 ? '\n🔥 $streak-day no-spend streak' : ''}';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: appHeader(context, 'Your Week'),
       body: phoneWrap(
         SingleChildScrollView(
@@ -157,7 +158,7 @@ class ShareCardScreen extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2ECC71),
+                      backgroundColor: cAccent,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16))),

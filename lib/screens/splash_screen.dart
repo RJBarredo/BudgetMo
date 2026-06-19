@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'home_screen.dart';
 import 'onboarding_screen.dart';
+import '../theme/theme_controller.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -74,11 +75,11 @@ class _SplashScreenState extends State<SplashScreen>
                   width: 110,
                   height: 110,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2ECC71),
+                    color: cAccent,
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2ECC71).withOpacity(0.4),
+                        color: cAccent.withOpacity(0.4),
                         blurRadius: 30,
                         spreadRadius: 5,
                       ),
@@ -106,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen>
                   height: 36,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    color: const Color(0xFF2ECC71).withOpacity(0.7),
+                    color: cAccent.withOpacity(0.7),
                   ),
                 ),
               ],

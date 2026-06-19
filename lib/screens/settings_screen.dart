@@ -13,6 +13,7 @@ import 'recurring_screen.dart';
 import 'share_card_screen.dart';
 import 'integrity_screen.dart';
 import 'theme_screen.dart';
+import '../theme/theme_controller.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -22,7 +23,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static Color get green => const Color(0xFF2ECC71);
+  static Color get green => cAccent;
   static Color get ink => const Color(0xFF1A2E1A);
 
   String _name = 'Student';
@@ -318,9 +319,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F7F5),
+        backgroundColor: cBg,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded, color: ink),

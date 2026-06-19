@@ -76,13 +76,27 @@ ThemeData buildAppTheme() {
   final dark = themeController.dark;
   final accent = themeController.preset.accent;
   final base = dark ? ThemeData.dark() : ThemeData.light();
+  final scheme = (dark ? const ColorScheme.dark() : const ColorScheme.light())
+      .copyWith(
+    primary: accent,
+    secondary: accent,
+    surface: cSurface,
+  );
   return base.copyWith(
     useMaterial3: true,
     scaffoldBackgroundColor: cBg,
-    colorScheme: (dark
-            ? const ColorScheme.dark()
-            : const ColorScheme.light())
-        .copyWith(primary: accent, secondary: accent),
-    textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme),
+    canvasColor: cBg,
+    cardColor: cSurface,
+    colorScheme: scheme,
+    appBarTheme: AppBarTheme(
+      backgroundColor: cBg,
+      foregroundColor: cInk,
+      elevation: 0,
+      surfaceTintColor: Colors.transparent,
+    ),
+    iconTheme: IconThemeData(color: cInk),
+    dividerColor: cHairline,
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(base.textTheme)
+        .apply(bodyColor: cInk, displayColor: cInk),
   );
 }

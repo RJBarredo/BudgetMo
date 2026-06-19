@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../services/storage_service.dart';
 import '../widgets/user_avatar.dart';
 import 'home_screen.dart';
+import '../theme/theme_controller.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -60,7 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -76,7 +77,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 8,
                   decoration: BoxDecoration(
                     color: _currentPage == i
-                        ? const Color(0xFF2ECC71)
+                        ? cAccent
                         : Colors.black12,
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -119,7 +120,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF2ECC71).withOpacity(0.3),
+                  color: cAccent.withOpacity(0.3),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -194,7 +195,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: selected
-                          ? const Color(0xFF2ECC71)
+                          ? cAccent
                           : Colors.transparent,
                       width: 3,
                     ),
@@ -285,7 +286,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 prefixStyle: GoogleFonts.plusJakartaSans(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF2ECC71)),
+                    color: cAccent),
               ),
             ),
           ),
@@ -453,7 +454,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2ECC71),
+          backgroundColor: cAccent,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16)),

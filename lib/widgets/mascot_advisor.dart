@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/storage_service.dart';
 import 'animations.dart';
+import '../theme/theme_controller.dart';
 
 enum MascotMood { happy, celebrate, worried, neutral }
 
@@ -179,10 +180,10 @@ class _MascotAdvisorCardState extends State<MascotAdvisorCard> {
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-                color: const Color(0xFF2ECC71).withOpacity(0.18)),
+                color: cAccent.withOpacity(0.18)),
             boxShadow: [
               BoxShadow(
-                  color: const Color(0xFF2ECC71).withOpacity(0.10),
+                  color: cAccent.withOpacity(0.10),
                   blurRadius: 16,
                   offset: const Offset(0, 6)),
             ],
@@ -208,7 +209,7 @@ class _MascotAdvisorCardState extends State<MascotAdvisorCard> {
                               horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
                             color:
-                                const Color(0xFF2ECC71).withOpacity(0.14),
+                                cAccent.withOpacity(0.14),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text('your money buddy',

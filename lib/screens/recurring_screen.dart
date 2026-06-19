@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/recurring_expense.dart';
 import '../services/storage_service.dart';
 import '../widgets/app_header.dart';
+import '../theme/theme_controller.dart';
 
 class RecurringScreen extends StatefulWidget {
   const RecurringScreen({super.key});
@@ -13,7 +14,7 @@ class RecurringScreen extends StatefulWidget {
 }
 
 class _RecurringScreenState extends State<RecurringScreen> {
-  static Color get green => const Color(0xFF2ECC71);
+  static Color get green => cAccent;
   static Color get ink => const Color(0xFF1A2E1A);
   List<RecurringExpense> _items = [];
 
@@ -229,7 +230,7 @@ class _RecurringScreenState extends State<RecurringScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: appHeader(context, 'Recurring'),
       body: phoneWrap(_items.isEmpty
           ? Center(

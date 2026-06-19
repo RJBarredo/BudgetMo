@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/income.dart';
 import '../services/storage_service.dart';
 import 'add_income_screen.dart';
+import '../theme/theme_controller.dart';
 
 class IncomeScreen extends StatefulWidget {
   const IncomeScreen({super.key});
@@ -104,9 +105,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
+      backgroundColor: cBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F7F5),
+        backgroundColor: cBg,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded,
@@ -148,7 +149,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _add,
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: cAccent,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
         label: Text('Add Income',
@@ -208,7 +209,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         const SizedBox(height: 2),
         Text('₱${value.toStringAsFixed(0)}',
             style: GoogleFonts.plusJakartaSans(
-                color: const Color(0xFF2ECC71),
+                color: cAccent,
                 fontSize: 16,
                 fontWeight: FontWeight.w700)),
       ],
@@ -256,7 +257,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2ECC71).withOpacity(0.12),
+                  color: cAccent.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -288,7 +289,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                   style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
-                      color: const Color(0xFF2ECC71))),
+                      color: cAccent)),
             ],
           ),
         ),

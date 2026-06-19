@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/theme_controller.dart';
 
-const Color kAppBg = Color(0xFFF5F7F5);
+Color get kAppBg => cBg;
 
 PreferredSizeWidget appHeader(BuildContext context, String title,
     {List<Widget>? actions}) {
